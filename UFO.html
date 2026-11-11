@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UFO Gọi Tên Học Sinh - Lên Bảng Liên Hành Tinh</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #0b0f19;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    #game-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #020617;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      max-height: 100vh;
+      object-fit: contain;
+      display: block;
+    }
+    /* Bottom Bar */
+    .bottom-bar {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      right: 16px;
+      max-width: 1100px;
+      margin: 0 auto;
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(51, 65, 85, 0.7);
+      border-radius: 20px;
+      padding: 12px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      z-index: 30;
+      box-shadow: 0 20px 30px -5px rgba(0, 0, 0, 0.55);
+    }
+    .btn-start {
+      background: #10b981;
+      color: #022c22;
+      border: none;
+      border-radius: 14px;
+      padding: 10px 24px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+    }
+    .btn-start:hover:not(:disabled) {
+      background: #34d399;
+      transform: translateY(-1px);
+    }
+    .btn-start:disabled {
+      background: #475569;
+      color: #94a3b8;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .btn-ctrl {
+      background: #1e293b;
+      color: #cbd5e1;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-ctrl:hover {
+      background: #334155;
+      color: #ffffff;
+    }
+    .pick-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: none;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      background: #1e293b;
+      color: #94a3b8;
+      transition: all 0.2s;
+    }
+    .pick-btn.active {
+      background: #10b981;
+      color: #022c22;
+    }
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .result-card {
+      background: rgba(255, 255, 255, 0.98);
+      border-radius: 28px;
+      padding: 32px;
+      width: 100%;
+      max-width: 580px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      position: relative;
+      border: 1px solid #e2e8f0;
+      color: #0f172a;
+    }
+    .stamp-badge {
+      position: absolute;
+      top: 24px;
+      right: 28px;
+      transform: rotate(12deg);
+      border: 2px solid #ef4444;
+      background: #fef2f2;
+      color: #dc2626;
+      font-size: 13px;
+      font-weight: 900;
+      padding: 4px 12px;
+      border-radius: 8px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .student-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 18px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      margin-bottom: 12px;
+    }
+    .student-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #38bdf8, #6366f1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+    }
+  </style>
+
+<!-- Đồng bộ cơ chế & màu sắc vũ trụ với Gọi Tên Ngôi Sao -->
+<style id="star-app-sync-theme">
+  :root {
+    --sky: #0b1230 !important;
+    --sky2: #151f4a !important;
+    --panel: #121a3d !important;
+    --panel2: #1a2452 !important;
+    --line: #2a3670 !important;
+    --ink: #eef2ff !important;
+    --muted: #a3add6 !important;
+    --star: #ffc23d !important;
+    --star2: #ffe08a !important;
+  }
+  body {
+    background: radial-gradient(1200px 700px at 70% -10%, #2a2f7a 0%, transparent 60%),
+                radial-gradient(900px 600px at -10% 110%, #3b1d5e 0%, transparent 55%),
+                #0b1230 !important;
+    color: #eef2ff !important;
+    font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif !important;
+  }
+  .modal, .dialog, .popup, .card, [class*="panel"], [class*="modal-content"] {
+    background: #121a3d !important;
+    color: #eef2ff !important;
+    border-color: #2a3670 !important;
+  }
+  button, .btn {
+    font-family: 'Be Vietnam Pro', sans-serif !important;
+  }
+</style>
+<script id="star-app-sync-script">
+(function(){
+  // Tự động đồng bộ danh sách học sinh từ app chính "Gọi Tên Ngôi Sao"
+  try {
+    var raw = localStorage.getItem('goi-ten-ngoi-sao-v1');
+    if (raw) {
+      var data = JSON.parse(raw);
+      var curCls = (data.classes || []).find(function(c){ return c.id === data.cur; }) || (data.classes || [])[0];
+      if (curCls && curCls.students && curCls.students.length > 0) {
+        window.STAR_APP_STUDENTS = curCls.students.slice();
+        console.log('[Gọi Tên Ngôi Sao] Đã đồng bộ lớp:', curCls.name, '(' + curCls.students.length + ' bạn)');
+      }
+    }
+  } catch(e) {}
+})();
+</script>
+
+</head>
+<body>
+  <div id="game-container">
+    <canvas id="canvas" width="1920" height="1080"></canvas>
+
+    <!-- Bottom Controls -->
+    <div class="bottom-bar">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="btn-start" onclick="startGame()" id="btn-start">
+          <span>🛸 Bắt đầu</span>
+        </button>
+        <span style="font-size:12px; color:#94a3b8; display:none;" id="hotkey-hint">
+          hoặc nhấn <b>Space</b>
+        </span>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:8px; background:rgba(30,41,59,0.7); padding:6px 12px; border-radius:12px;">
+        <span style="font-size:12px; color:#cbd5e1; font-weight:600;">Bắt:</span>
+        <button class="pick-btn" onclick="setPickCount(1)">1</button>
+        <button class="pick-btn active" onclick="setPickCount(2)">2</button>
+        <button class="pick-btn" onclick="setPickCount(3)">3</button>
+        <button class="pick-btn" onclick="setPickCount(4)">4</button>
+        <button class="pick-btn" onclick="setPickCount(5)">5</button>
+        <span style="font-size:12px; color:#94a3b8;">bạn</span>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div style="font-size:12px; color:#cbd5e1; background:#1e293b; padding:6px 12px; border-radius:10px;" id="class-badge">
+          Lớp học • 38 hs
+        </div>
+        <button class="btn-ctrl" onclick="toggleSound()" id="sound-btn">🔊 Bật</button>
+        <button class="btn-ctrl" onclick="toggleFullscreen()">⛶ Toàn màn hình</button>
+        <button class="btn-ctrl" onclick="openSettings()">⚙ Cài đặt</button>
+      </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="result-modal" class="modal-overlay">
+      <div class="result-card">
+        <div class="stamp-badge">ĐÃ BẮT</div>
+        <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
+          <span>🛸</span>
+          <span id="res-subtitle" style="font-size:11px; font-weight:800; color:#059669; letter-spacing:1.5px; text-transform:uppercase;">
+            LỆNH TRIỆU TẬP LIÊN HÀNH TINH
+          </span>
+        </div>
+        <h2 id="res-title" style="font-size:26px; font-weight:900; color:#0f172a; margin-bottom:20px;">
+          Mời bạn lên bảng!
+        </h2>
+
+        <div id="results-list" style="margin-bottom:24px;"></div>
+
+        <div style="display:flex; align-items:center; justify-content:space-between; border-top:1px solid #f1f5f9; padding-top:16px;">
+          <div style="font-size:11px; color:#94a3b8;">
+            <div id="res-time">--:--</div>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button class="btn-ctrl" onclick="openSettings()" style="background:#f1f5f9; color:#334155; border-color:#e2e8f0;">⚙ Cài đặt</button>
+            <button class="btn-start" onclick="newRound()" style="padding:8px 20px; font-size:14px;">
+              <span>↻ Gọi tiếp (Space)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal-overlay">
+      <div style="background:#0f172a; border:1px solid #334155; border-radius:24px; padding:24px; width:100%; max-width:650px; max-height:85vh; overflow-y:auto; color:#fff;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+          <h3 style="font-size:18px; font-weight:800;">⚙ Cài đặt & Danh sách học sinh</h3>
+          <button onclick="closeSettings()" style="background:transparent; border:none; color:#94a3b8; font-size:20px; cursor:pointer;">✕</button>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label style="display:block; font-size:12px; color:#94a3b8; margin-bottom:6px;">Lớp đang bắt (chỉ cần chọn lớp là chơi ngay, không cần dán lại tên):</label>
+          <select id="class-select" onchange="onClassSelectChange()" style="width:100%; background:#020617; border:1px solid #334155; border-radius:12px; padding:10px 12px; color:#fff; font-size:13px;"></select>
+        </div>
+
+        <div style="margin-bottom:12px; border:1px solid #334155; border-radius:12px; padding:12px;">
+          <div style="font-size:12px; color:#94a3b8; margin-bottom:8px;">🎵 Nhạc nền từ máy (phát lặp lại trong lúc chơi, lưu trên máy này)</div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button onclick="document.getElementById('musicFileInput').click()" style="background:#334155; color:#fcd34d; border:none; border-radius:10px; padding:8px 16px; font-size:12px; font-weight:700; cursor:pointer;">📁 Tải nhạc từ máy</button>
+            <button id="musicToggleBtn" onclick="toggleCustomMusic()" disabled style="background:#334155; color:#fcd34d; border:none; border-radius:10px; padding:8px 16px; font-size:12px; font-weight:700; cursor:pointer;">▶ Bật nhạc</button>
+            <button id="musicClearBtn" onclick="clearCustomMusic()" disabled style="background:#1e293b; color:#cbd5e1; border:none; border-radius:10px; padding:8px 16px; font-size:12px; cursor:pointer;">✕ Xóa nhạc</button>
+          </div>
+          <div id="musicStatus" style="font-size:12px; color:#6ee7b7; margin-top:8px;"></div>
+          <input type="file" id="musicFileInput" accept="audio/*,.mp3,.wav,.ogg,.m4a" hidden>
+        </div>
+
+        <div id="class-blocks" style="display:flex; flex-direction:column; gap:12px; margin-bottom:12px;"></div>
+
+        <div id="save-status" style="display:none; font-size:12px; font-weight:700; color:#6ee7b7; background:#052e16; border:1px solid #166534; border-radius:10px; padding:8px 12px; margin-bottom:12px;"></div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <button onclick="addClassBlock()" style="background:#334155; color:#fcd34d; border:none; border-radius:10px; padding:8px 16px; font-size:12px; font-weight:700; cursor:pointer;">
+            ＋ Thêm lớp
+          </button>
+          <button onclick="resetCallRound()" title="Xóa lịch sử đã gọi của lớp đang bắt để gọi lại từ đầu" style="background:#334155; color:#fcd34d; border:none; border-radius:10px; padding:8px 16px; font-size:12px; font-weight:700; cursor:pointer;">
+            ↻ Làm mới vòng gọi
+          </button>
+          <div style="display:flex; gap:8px;">
+            <button onclick="closeSettings()" style="background:#1e293b; color:#cbd5e1; border:none; border-radius:10px; padding:8px 16px; font-size:12px; cursor:pointer;">Đóng</button>
+            <button onclick="saveAllClasses()" style="background:#10b981; color:#022c22; border:none; border-radius:10px; padding:8px 20px; font-size:12px; font-weight:800; cursor:pointer;">Lưu tất cả</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initial student data & comprehensive school banter
+    const initialConfig = {
+      classes: [
+        {
+          id: 'class_12a1',
+          name: 'Lớp 12A1',
+          students: [
+            {"id":"std_1","name":"Đoàn Minh Đức","gender":"boy","hairStyle":0,"hairColor":"#1f2937"},
+            {"id":"std_2","name":"Nguyễn Bùi Gia Huy","gender":"boy","hairStyle":1,"hairColor":"#111827"},
+            {"id":"std_3","name":"Phương Linh","gender":"girl","hairStyle":2,"hairColor":"#374151"},
+            {"id":"std_4","name":"Quỳnh Anh","gender":"girl","hairStyle":3,"hairColor":"#1f2937"},
+            {"id":"std_5","name":"Tuấn Minh","gender":"boy","hairStyle":4,"hairColor":"#111827"},
+            {"id":"std_6","name":"Khắc Khoa","gender":"boy","hairStyle":5,"hairColor":"#374151"},
+            {"id":"std_7","name":"Mạnh Dũng","gender":"boy","hairStyle":0,"hairColor":"#1f2937"},
+            {"id":"std_8","name":"Hải Đăng","gender":"boy","hairStyle":1,"hairColor":"#111827"},
+            {"id":"std_9","name":"Huy Khánh","gender":"boy","hairStyle":2,"hairColor":"#374151"},
+            {"id":"std_10","name":"Bảo Ngọc","gender":"girl","hairStyle":3,"hairColor":"#1f2937"},
+            {"id":"std_11","name":"Thanh Thảo","gender":"girl","hairStyle":4,"hairColor":"#111827"},
+            {"id":"std_12","name":"Khánh An","gender":"girl","hairStyle":5,"hairColor":"#374151"},
+            {"id":"std_13","name":"Việt Hoàng","gender":"boy","hairStyle":0,"hairColor":"#1f2937"},
+            {"id":"std_14","name":"Trúc Mai","gender":"girl","hairStyle":1,"hairColor":"#111827"},
+            {"id":"std_15","name":"Hoàng Long","gender":"boy","hairStyle":2,"hairColor":"#374151"},
+            {"id":"std_16","name":"Đình Trọng","gender":"boy","hairStyle":3,"hairColor":"#1f2937"},
+            {"id":"std_17","name":"Hồng Nhung","gender":"girl","hairStyle":4,"hairColor":"#111827"},
+            {"id":"std_18","name":"Thế Anh","gender":"boy","hairStyle":5,"hairColor":"#374151"},
+            {"id":"std_19","name":"Nhật Linh","gender":"girl","hairStyle":0,"hairColor":"#1f2937"},
+            {"id":"std_20","name":"Quang Khải","gender":"boy","hairStyle":1,"hairColor":"#111827"},
+            {"id":"std_21","name":"Mai Anh","gender":"girl","hairStyle":2,"hairColor":"#374151"},
+            {"id":"std_22","name":"Minh Thư","gender":"girl","hairStyle":3,"hairColor":"#1f2937"},
+            {"id":"std_23","name":"Tiến Đạt","gender":"boy","hairStyle":4,"hairColor":"#111827"},
+            {"id":"std_24","name":"Khánh Linh","gender":"girl","hairStyle":5,"hairColor":"#374151"},
+            {"id":"std_25","name":"Đức Huy","gender":"boy","hairStyle":0,"hairColor":"#1f2937"},
+            {"id":"std_26","name":"Kim Ngân","gender":"girl","hairStyle":1,"hairColor":"#111827"},
+            {"id":"std_27","name":"Quốc Bảo","gender":"boy","hairStyle":2,"hairColor":"#374151"},
+            {"id":"std_28","name":"Thảo My","gender":"girl","hairStyle":3,"hairColor":"#1f2937"},
+            {"id":"std_29","name":"Hữu Phước","gender":"boy","hairStyle":4,"hairColor":"#111827"},
+            {"id":"std_30","name":"Diệu Huyền","gender":"girl","hairStyle":5,"hairColor":"#374151"},
+            {"id":"std_31","name":"Văn Nam","gender":"boy","hairStyle":0,"hairColor":"#1f2937"},
+            {"id":"std_32","name":"Gia Bảo","gender":"boy","hairStyle":1,"hairColor":"#111827"},
+            {"id":"std_33","name":"Ngọc Hân","gender":"girl","hairStyle":2,"hairColor":"#374151"},
+            {"id":"std_34","name":"Bảo Trâm","gender":"girl","hairStyle":3,"hairColor":"#1f2937"},
+            {"id":"std_35","name":"Hoàng Bách","gender":"boy","hairStyle":4,"hairColor":"#111827"},
+            {"id":"std_36","name":"Thùy Chi","gender":"girl","hairStyle":5,"hairColor":"#374151"},
+            {"id":"std_37","name":"Minh Khang","gender":"boy","hairStyle":0,"hairColor":"#1f2937"},
+            {"id":"std_38","name":"Tuệ Mẫn","gender":"girl","hairStyle":1,"hairColor":"#111827"}
+          ]
+        }
+      ],
+      settings: { pickCount: 2 }
+    };
+
+    const FUNNY_SPEECHES = {
+      idle: [
+        'Bánh mì ở đây ngon xỉu!',
+        'Hôm nay trời đẹp ghê!',
+        'Học thuộc bài chưa mày?',
+        'Lát tan học ăn trà sữa nha!',
+        'Chắc hôm nay không bị bắt đâu...',
+        'Ê cho mượn cây bút bi xíu!',
+        'Tối qua cày phim tới 2h sáng đuối ghê!',
+        'Hy vọng hôm nay thoát nạn bị bắt!',
+        'Bánh mì pate trứng thơm phức luôn!',
+        'Trời xanh mây trắng cảnh đẹp ghê!',
+        'Hôm nay có ai chưa làm bài tập không?',
+        'Đói bụng quá, lát đi ăn bún chả!'
+      ],
+      warning: [
+        'Ủa cái gì trên trời dợ?!',
+        'Trời tự nhiên tối sầm vậy?!',
+        'Gì vậy trời?!',
+        'Cái đĩa bay khổng lồ kìa bà con!',
+        'Có biến rồi anh em ơi!!',
+        'Tiếng động cơ gì kinh khủng thế?!'
+      ],
+      panic: [
+        'Cứu tui với!!',
+        'Chạy mau anh em ơi!!',
+        'Đừng bắt em mà!!',
+        'Em chưa học bài thầy ơi!!',
+        'Ôi mẹ ơi cứu con!!',
+        'Chạy lẹ chạy lẹ!!',
+        'Cho em lượt sau đi mà!!',
+        'Cứu tui, sắp bay lên rồi!',
+        'Á á lực hút mạnh quá!'
+      ],
+      floating: [
+        'Hồi hộp quá, ai sẽ bị tóm đây?!',
+        'Đừng chọn em mà đĩa bay ơi!!',
+        'Sao Hỏa lạnh lắm tha cho em đi!',
+        'Thầy ơi em hứa mai học bài!!',
+        'Tim đập thình thịch luôn á trời!',
+        'Cứu em má ơi, lơ lửng rồi!!',
+        'Ai cũng bay lên chổng vó hết nè!!',
+        'Cái tia laser đang quét trúng ai vậy?!'
+      ],
+      captured: [
+        'Thầy ơi cứu em!!',
+        'Em thuộc bài rồi mà!!',
+        'Sao lại là em?! Em biết ngay mà!!',
+        'Đừng bắt em đi sao Hỏa!!',
+        'Trời ơi là trời, lộn ngược rồi!!',
+        'Em xin hứa ngoan ngoãn ạ!!',
+        'Áo thể thao mới giặt mà!!'
+      ],
+      relief: [
+        'Bịch! May quá rớt lại xuống đất!',
+        'Hú hồn chim én, thoát nạn rồi!!',
+        'Bình an vô sự rồi bay ơi!!',
+        'May ghê chưa bị bốc lên sao Hỏa!',
+        'Chóng mặt muốn xỉu luôn á!',
+        'Run rẩy cả chân tay!',
+        'Chia buồn cùng 2 bạn bị bắt nha!'
+      ]
+    };
+
+    // Full Offline Web Audio Synthesizer Engine
+    class SoundEngineOffline {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+        this.volume = 0.8;
+        this.bgmPlaying = false;
+        this.bgmTimer = null;
+        this.bgmStep = 0;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume().catch(()=>{});
+      }
+      startBGM() {
+        if (!this.enabled) return;
+        this.init();
+        if (this.bgmPlaying) return;
+        this.bgmPlaying = true;
+        this.bgmStep = 0;
+        const stepInterval = 117; // 128 BPM 16th note
+        this.bgmTimer = window.setInterval(() => {
+          if (!this.bgmPlaying || !this.enabled || !this.ctx) return;
+          this.tickBGMStep(this.bgmStep);
+          this.bgmStep = (this.bgmStep + 1) % 64;
+        }, stepInterval);
+      }
+      stopBGM() {
+        this.bgmPlaying = false;
+        if (this.bgmTimer) { clearInterval(this.bgmTimer); this.bgmTimer = null; }
+      }
+      tickBGMStep(step) {
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const vol = this.volume;
+        const beatInBar = step % 16;
+        if (beatInBar % 4 === 0) {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(150, now);
+          osc.frequency.exponentialRampToValueAtTime(42, now + 0.12);
+          gain.gain.setValueAtTime(0.35 * vol, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+          osc.connect(gain); gain.connect(this.ctx.destination);
+          osc.start(now); osc.stop(now + 0.15);
+        }
+        if (beatInBar === 4 || beatInBar === 12) {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(190, now);
+          osc.frequency.exponentialRampToValueAtTime(90, now + 0.1);
+          gain.gain.setValueAtTime(0.2 * vol, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+          osc.connect(gain); gain.connect(this.ctx.destination);
+          osc.start(now); osc.stop(now + 0.12);
+        }
+        if (step % 2 === 0) {
+          const isAccent = beatInBar % 4 === 2;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(isAccent ? 3600 : 2800, now);
+          gain.gain.setValueAtTime((isAccent ? 0.08 : 0.04) * vol, now);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
+          osc.connect(gain); gain.connect(this.ctx.destination);
+          osc.start(now); osc.stop(now + 0.045);
+        }
+        const bar = Math.floor(step / 16);
+        const roots = [55, 43.65, 48.99, 55];
+        const root = roots[bar % roots.length];
+        const mults = [1, 1, 2, 1, 1.2, 1, 2, 1.2, 1, 1, 2, 1.33, 1.5, 1.2, 1, 2];
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        const flt = this.ctx.createBiquadFilter();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(root * mults[beatInBar], now);
+        flt.type = 'lowpass';
+        flt.frequency.setValueAtTime(380, now);
+        flt.frequency.exponentialRampToValueAtTime(140, now + 0.1);
+        gain.gain.setValueAtTime(0.18 * vol, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
+        osc.connect(flt); flt.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(now); osc.stop(now + 0.12);
+      }
+      warning() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        for (let i = 0; i < 3; i++) {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          const t = this.ctx.currentTime + i * 0.22;
+          osc.frequency.setValueAtTime(500, t);
+          osc.frequency.exponentialRampToValueAtTime(900, t + 0.12);
+          gain.gain.setValueAtTime(0, t);
+          gain.gain.linearRampToValueAtTime(0.25 * this.volume, t + 0.03);
+          gain.gain.linearRampToValueAtTime(0, t + 0.18);
+          osc.connect(gain); gain.connect(this.ctx.destination);
+          osc.start(t); osc.stop(t + 0.2);
+        }
+      }
+      whoosh() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(250, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.4);
+        gain.gain.setValueAtTime(0.25 * this.volume, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.45);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.45);
+      }
+      pop() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(700, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.18);
+        gain.gain.setValueAtTime(0.3 * this.volume, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.18);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.18);
+      }
+      massLevitation() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(70, now);
+        osc.frequency.exponentialRampToValueAtTime(280, now + 1.8);
+        gain.gain.setValueAtTime(0.01, now);
+        gain.gain.linearRampToValueAtTime(0.28 * this.volume, now + 0.4);
+        gain.gain.linearRampToValueAtTime(0.01, now + 1.8);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(now); osc.stop(now + 1.85);
+      }
+      suspensePulse(freq = 420) {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.7, this.ctx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.2 * this.volume, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.14);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.15);
+      }
+      slideWhistle(up = true) {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        if (up) {
+          osc.frequency.setValueAtTime(320, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(1250, this.ctx.currentTime + 0.5);
+        } else {
+          osc.frequency.setValueAtTime(1150, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(280, this.ctx.currentTime + 0.5);
+        }
+        gain.gain.setValueAtTime(0.01, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.22 * this.volume, this.ctx.currentTime + 0.08);
+        gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.5);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.5);
+      }
+      cartoonTick(pitch = 750) {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(pitch, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(pitch * 0.4, this.ctx.currentTime + 0.05);
+        gain.gain.setValueAtTime(0.2 * this.volume, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.06);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.06);
+      }
+      thud() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(130, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.18);
+        gain.gain.setValueAtTime(0.28 * this.volume, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.2);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.2);
+      }
+      fanfare() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        const now = this.ctx.currentTime;
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+          gain.gain.setValueAtTime(0.22 * this.volume, now + idx * 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.4);
+          osc.connect(gain); gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.12); osc.stop(now + idx * 0.12 + 0.42);
+        });
+      }
+    }
+    const snd = new SoundEngineOffline();
+
+    // ---- Lưu nhiều lớp cùng lúc (khối lớp + Lưu tất cả) ----
+    const CLASS_STORAGE_KEY = 'ufo_goi_ten_classes';
+    function cloneStudents(list) {
+      return (list || []).map((s, i) => ({
+        id: s.id || ('std_' + Date.now() + '_' + i),
+        name: s.name,
+        gender: s.gender || (i % 2 === 0 ? 'boy' : 'girl')
+      })).filter(s => s.name && String(s.name).trim().length > 0);
+    }
+    function loadStoredClasses() {
+      try {
+        const raw = localStorage.getItem(CLASS_STORAGE_KEY);
+        if (!raw) return null;
+        const data = JSON.parse(raw);
+        if (!data || !Array.isArray(data.classes)) return null;
+        const classes = data.classes.map((c, ci) => ({
+          id: c.id || ('cls_' + Date.now() + '_' + ci),
+          name: (c.name || '').trim(),
+          students: cloneStudents(c.students)
+        })).filter(c => c.students.length > 0);
+        if (classes.length === 0) return null;
+        const called = {};
+        if (data.called && typeof data.called === 'object') {
+            classes.forEach(c => {
+                const arr = data.called[c.id];
+                if (Array.isArray(arr)) {
+                    const names = new Set(c.students.map(st => st.name));
+                    const kept = arr.filter(n => names.has(n));
+                    if (kept.length) called[c.id] = kept;
+                }
+            });
+        }
+        return { classes, activeClassId: data.activeClassId || classes[0].id, called };
+      } catch (e) { return null; }
+    }
+    function persistClasses() {
+      try {
+        localStorage.setItem(CLASS_STORAGE_KEY, JSON.stringify({ classes: state.classes, activeClassId: state.activeClassId, called: state.called || {} }));
+      } catch (e) {}
+    }
+    function setActiveClass(id) {
+      const cls = state.classes.find(c => c.id === id) || state.classes[0];
+      if (!cls) return;
+      state.activeClassId = cls.id;
+      state.students = cls.students;
+      initActors();
+      persistClasses();
+    }
+
+    // ---- Chong trung: hoc sinh da duoc goi thi khong goi lai trong cung lop ----
+    // Luu theo TEN (khong theo id) vi saveAllClasses tai tao id hoc sinh moi lan luu.
+    function getCalledNames(classId) {
+        const arr = state.called ? state.called[classId] : null;
+        return new Set(Array.isArray(arr) ? arr : []);
+    }
+    function getRemainingCount() {
+        const cls = state.classes.find(c => c.id === state.activeClassId) || state.classes[0];
+        if (!cls) return 0;
+        const called = getCalledNames(cls.id);
+        return cls.students.filter(st => !called.has(st.name)).length;
+    }
+    function refreshBadge() {
+        const cls = state.classes.find(c => c.id === state.activeClassId) || state.classes[0];
+        const badge = document.getElementById('class-badge');
+        if (!badge) return;
+        badge.innerText = cls ? (cls.name + ' • Còn lại ' + getRemainingCount() + '/' + actors.length + ' hs')
+                              : ('Lớp học • ' + actors.length + ' hs');
+    }
+    function resetCallRound() {
+        const cls = state.classes.find(c => c.id === state.activeClassId) || state.classes[0];
+        if (!cls) return;
+        state.called[state.activeClassId] = [];
+        persistClasses();
+        refreshBadge();
+        const st = document.getElementById('save-status');
+        if (st) { st.style.display = 'block'; st.innerText = 'Đã làm mới vòng gọi cho lớp ' + cls.name + '!'; }
+    }
+
+    // App state
+    const _stored = loadStoredClasses();
+    const _defaultClasses = [{ id: initialConfig.classes[0].id, name: initialConfig.classes[0].name, students: cloneStudents(initialConfig.classes[0].students) }];
+    let state = {
+      classes: _stored ? _stored.classes : _defaultClasses,
+      activeClassId: _stored ? _stored.activeClassId : _defaultClasses[0].id,
+      called: _stored ? (_stored.called || {}) : {},
+      students: [],
+      pickCount: initialConfig.settings.pickCount || 2,
+      phase: 'IDLE',
+      captured: [],
+      night: 0
+    };
+    state.activeClassId = (state.classes.find(c => c.id === state.activeClassId) || state.classes[0]).id;
+    state.students = (state.classes.find(c => c.id === state.activeClassId) || state.classes[0]).students;
+
+    // Canvas Setup
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const V_W = 1920, V_H = 1080, GROUND_Y = 870, SIDEWALK_Y = 820;
+
+    let actors = [];
+    let ufo = { x: 960, y: -240, targetX: 960, targetY: 220, counter: 0, total: 2, tilt: 0, beamAlpha: 0, beamActive: false };
+    let targets = [];
+    let targetIdx = 0;
+
+    function initActors() {
+      const tiltAngles = [0.75, -0.85, 1.35, -1.45, 3.14, -2.85, 0.45, -0.55, 1.85, -1.95];
+      actors = state.students.map((s, idx) => {
+        const spacing = (V_W - 240) / Math.max(1, state.students.length);
+        const yOff = (idx % 4) * 12;
+        return {
+          ...s,
+          hairStyle: s.hairStyle || idx % 6,
+          hairColor: s.hairColor || (idx % 3 === 0 ? '#1f2937' : idx % 3 === 1 ? '#111827' : '#374151'),
+          x: 140 + idx * spacing,
+          y: SIDEWALK_Y + 15 + yOff,
+          baseY: SIDEWALK_Y + 15 + yOff,
+          vx: (Math.random() > 0.5 ? 1 : -1) * 0.8,
+          scale: 0.95 + (yOff / 50) * 0.15,
+          facing: Math.random() > 0.5 ? 1 : -1,
+          action: 'WALK',
+          animTimer: Math.random() * 5,
+          isCaptured: false,
+          floatAngle: tiltAngles[idx % tiltAngles.length],
+          floatHeight: 0,
+          rotation: 0,
+          speechText: null,
+          speechTimer: 0,
+          alertMark: false
+        };
+      });
+      refreshBadge();
+    }
+
+    function setPickCount(cnt) {
+      state.pickCount = cnt;
+      document.querySelectorAll('.pick-btn').forEach((b, i) => {
+        b.classList.toggle('active', i + 1 === cnt);
+      });
+    }
+
+    function toggleSound() {
+      snd.enabled = !snd.enabled;
+      document.getElementById('sound-btn').innerText = snd.enabled ? '🔊 Bật' : '🔇 Tắt';
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    function createClassBlockElement(id, name, namesText) {
+      const block = document.createElement('div');
+      block.className = 'class-block';
+      block.dataset.classId = id || '';
+      block.style.cssText = 'border:1px solid #334155; border-radius:14px; padding:12px; background:#020617;';
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex; gap:8px; align-items:center; margin-bottom:8px;';
+      const nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.className = 'class-name-input';
+      nameInput.value = name || '';
+      nameInput.placeholder = 'Tên lớp, ví dụ: Lớp 12A1';
+      nameInput.style.cssText = 'flex:1; min-width:0; background:#0f172a; border:1px solid #334155; border-radius:10px; padding:8px 10px; color:#fff; font-size:13px; font-weight:700;';
+      const sampleBtn = document.createElement('button');
+      sampleBtn.textContent = '✨ Tên mẫu';
+      sampleBtn.style.cssText = 'background:#334155; color:#fcd34d; border:none; border-radius:10px; padding:8px 12px; font-size:12px; font-weight:700; cursor:pointer; white-space:nowrap;';
+      sampleBtn.onclick = function() { loadSampleIntoBlock(sampleBtn); };
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '✕';
+      delBtn.title = 'Xóa khối lớp này';
+      delBtn.style.cssText = 'background:transparent; border:none; color:#94a3b8; font-size:18px; cursor:pointer; line-height:1;';
+      delBtn.onclick = function() { removeClassBlock(delBtn); };
+      row.appendChild(nameInput);
+      row.appendChild(sampleBtn);
+      row.appendChild(delBtn);
+      const ta = document.createElement('textarea');
+      ta.className = 'class-roster-textarea';
+      ta.rows = 6;
+      ta.placeholder = 'Dán danh sách học sinh, mỗi dòng 1 tên';
+      ta.value = namesText || '';
+      ta.style.cssText = 'width:100%; background:#0f172a; border:1px solid #334155; border-radius:12px; padding:10px 12px; color:#fff; font-size:13px; font-family:monospace; box-sizing:border-box;';
+      block.appendChild(row);
+      block.appendChild(ta);
+      return block;
+    }
+    function renderClassBlocks() {
+      const wrap = document.getElementById('class-blocks');
+      wrap.innerHTML = '';
+      state.classes.forEach(cls => {
+        wrap.appendChild(createClassBlockElement(cls.id, cls.name, cls.students.map(s => s.name).join('\n')));
+      });
+      refreshClassSelect();
+    }
+    function refreshClassSelect() {
+      const sel = document.getElementById('class-select');
+      if (!sel) return;
+      sel.innerHTML = '';
+      state.classes.forEach(cls => {
+        const opt = document.createElement('option');
+        opt.value = cls.id;
+        opt.textContent = cls.name + ' (' + cls.students.length + ' hs)';
+        if (cls.id === state.activeClassId) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+    function onClassSelectChange() {
+      const sel = document.getElementById('class-select');
+      if (sel && sel.value) setActiveClass(sel.value);
+    }
+    function addClassBlock() {
+      const wrap = document.getElementById('class-blocks');
+      wrap.appendChild(createClassBlockElement('', '', ''));
+      const inputs = document.querySelectorAll('#class-blocks .class-name-input');
+      const last = inputs[inputs.length - 1];
+      if (last) last.focus();
+    }
+    function removeClassBlock(btn) {
+      const block = btn.closest('.class-block');
+      if (block) block.remove();
+    }
+    function loadSampleIntoBlock(btn) {
+      const block = btn.closest('.class-block');
+      if (!block) return;
+      block.querySelector('.class-roster-textarea').value = initialConfig.classes[0].students.map(s => s.name).join('\n');
+    }
+    function openSettings() {
+      renderClassBlocks();
+      const st = document.getElementById('save-status');
+      if (st) st.style.display = 'none';
+      document.getElementById('settings-modal').classList.add('active');
+    }
+    function closeSettings() {
+      document.getElementById('settings-modal').classList.remove('active');
+    }
+    function saveAllClasses() {
+      const status = document.getElementById('save-status');
+      const showStatus = (msg, ok) => {
+        status.style.display = 'block';
+        status.style.color = ok ? '#6ee7b7' : '#fca5a5';
+        status.style.background = ok ? '#052e16' : '#450a0a';
+        status.style.borderColor = ok ? '#166534' : '#991b1b';
+        status.innerText = msg;
+      };
+      const blocks = Array.prototype.slice.call(document.querySelectorAll('#class-blocks .class-block'));
+      const parsed = blocks.map(b => {
+        const nameInput = b.querySelector('.class-name-input');
+        const ta = b.querySelector('.class-roster-textarea');
+        return {
+          id: b.dataset.classId || '',
+          name: nameInput ? nameInput.value.trim() : '',
+          names: ta ? ta.value.split('\n').map(n => n.trim()).filter(n => n.length > 0) : []
+        };
+      }).filter(p => p.names.length > 0);
+      if (parsed.length === 0) {
+        showStatus('Chưa có lớp nào có học sinh nên chưa lưu gì cả. Hãy nhập tên vào ít nhất một khối lớp.', false);
+        return;
+      }
+      const seenNames = {};
+      let dupName = null;
+      parsed.forEach(p => {
+        if (!p.name) return;
+        const key = p.name.toLowerCase();
+        if (seenNames[key]) dupName = dupName || p.name;
+        seenNames[key] = true;
+      });
+      if (dupName) {
+        showStatus('Tên lớp bị trùng: "' + dupName + '". Đã hủy lưu, chưa lưu gì cả. Hãy đổi tên một lớp rồi bấm "Lưu tất cả" lại.', false);
+        return;
+      }
+      const usedNums = {};
+      parsed.forEach(p => {
+        const m = /^Lớp\s+(\d+)$/i.exec(p.name);
+        if (m) usedNums[parseInt(m[1], 10)] = true;
+      });
+      let nextNum = 1;
+      parsed.forEach(p => {
+        if (!p.name) {
+          while (usedNums[nextNum]) nextNum++;
+          p.name = 'Lớp ' + nextNum;
+          usedNums[nextNum] = true;
+        }
+      });
+      const newClasses = parsed.map((p, i) => ({
+        id: p.id || ('cls_' + Date.now() + '_' + i),
+        name: p.name,
+        students: p.names.map((name, j) => ({ id: 'std_' + Date.now() + '_' + i + '_' + j, name: name, gender: j % 2 === 0 ? 'boy' : 'girl' }))
+      }));
+      const _oldCalledById = Object.assign({}, state.called || {});
+      state.classes = newClasses;
+      const _newCalled = {};
+      newClasses.forEach(c => {
+        const names = new Set(c.students.map(st => st.name));
+        const kept = (_oldCalledById[c.id] || []).filter(n => names.has(n));
+        if (kept.length) _newCalled[c.id] = kept;
+      });
+      state.called = _newCalled;
+      if (!newClasses.find(c => c.id === state.activeClassId)) state.activeClassId = newClasses[0].id;
+      state.students = (newClasses.find(c => c.id === state.activeClassId) || newClasses[0]).students;
+      persistClasses();
+      initActors();
+      renderClassBlocks();
+      const total = newClasses.reduce((sum, c) => sum + c.students.length, 0);
+      showStatus('Đã lưu ' + newClasses.length + ' lớp, tổng ' + total + ' học sinh.', true);
+    }
+
+    let cinePhase = 'IDLE';
+    let cineTimer = 0;
+    let scanX = 960;
+    let scanDir = 1;
+    let lastPulse = 0;
+    let lastTick = 0;
+    let snatchStage = 'LOCK';
+    let snatchTimer = 0;
+    let snatchProg = 0;
+
+    function startGame() {
+      if (state.phase !== 'IDLE' && state.phase !== 'RESULTS') return;
+      if (actors.length > 0 && getRemainingCount() === 0) {
+        if (!confirm('Tất cả học sinh lớp này đã được gọi! Bắt đầu vòng mới nhé?')) return;
+        state.called[state.activeClassId] = [];
+        persistClasses();
+        refreshBadge();
+      }
+      document.getElementById('result-modal').classList.remove('active');
+      document.getElementById('btn-start').disabled = true;
+      state.phase = 'WARNING';
+      cinePhase = 'WARNING';
+      cineTimer = 0;
+      snd.warning();
+
+      // Show alert marks & warning speech
+      actors.forEach(a => {
+        if (Math.random() < 0.65) a.alertMark = true;
+      });
+      const warned = actors.filter(a => a.alertMark);
+      if (warned.length > 0) {
+        const spk = warned[Math.floor(Math.random() * warned.length)];
+        spk.speechText = FUNNY_SPEECHES.warning[Math.floor(Math.random() * FUNNY_SPEECHES.warning.length)];
+        spk.speechTimer = 2.4;
+      }
+
+      setTimeout(() => {
+        state.phase = 'UFO_ENTER';
+        cinePhase = 'UFO_ENTER';
+        cineTimer = 0;
+        if (!customMusicOn) snd.startBGM();
+        snd.whoosh();
+        ufo.y = -240;
+        ufo.targetX = V_W / 2;
+        ufo.targetY = 220;
+        ufo.counter = 0;
+        ufo.total = state.pickCount;
+
+        // Pick fair random targets: chi boc trong so CHUA goi (chong trung)
+        const calledNames = getCalledNames(state.activeClassId);
+        const pool = actors.filter(a => !calledNames.has(a.name));
+        const shuffled = [...pool].sort(() => Math.random() - 0.5);
+        targets = shuffled.slice(0, Math.min(state.pickCount, shuffled.length));
+        targetIdx = 0;
+        state.captured = [];
+      }, 1600);
+    }
+
+    function newRound() {
+      document.getElementById('result-modal').classList.remove('active');
+      state.phase = 'IDLE';
+      cinePhase = 'IDLE';
+      actors.forEach(a => {
+        a.action = 'WALK';
+        a.isCaptured = false;
+        a.floatHeight = 0;
+        a.rotation = 0;
+        a.y = a.baseY;
+        a.vy = 0;
+        a.speechText = null;
+        a.alertMark = false;
+      });
+      document.getElementById('btn-start').disabled = false;
+      startGame();
+    }
+
+    // Keyboard bindings
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        if (state.phase === 'RESULTS') newRound();
+        else if (state.phase === 'IDLE') startGame();
+      } else if (e.code === 'Escape') {
+        closeSettings();
+        document.getElementById('result-modal').classList.remove('active');
+      }
+    });
+
+    // Helper: draw comic speech bubble
+    function drawSpeechBubble(bx, by, text) {
+      ctx.save();
+      ctx.font = 'bold 16px sans-serif';
+      const tw = ctx.measureText(text).width;
+      const bw = tw + 24;
+      const bh = 34;
+      const clampedX = Math.max(bw / 2 + 20, Math.min(V_W - bw / 2 - 20, bx));
+      const bubbleY = by - 24;
+
+      // Drop shadow
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+      roundRect(ctx, clampedX - bw / 2 + 2, bubbleY - bh / 2 + 2, bw, bh, 10);
+      ctx.fill();
+
+      // Bubble box
+      ctx.fillStyle = '#ffffff';
+      roundRect(ctx, clampedX - bw / 2, bubbleY - bh / 2, bw, bh, 10);
+      ctx.fill();
+
+      // Tail
+      ctx.beginPath();
+      ctx.moveTo(clampedX - 6, bubbleY + bh / 2);
+      ctx.lineTo(bx, by + 2);
+      ctx.lineTo(clampedX + 8, bubbleY + bh / 2);
+      ctx.closePath();
+      ctx.fill();
+
+      // Border
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 2;
+      roundRect(ctx, clampedX - bw / 2, bubbleY - bh / 2, bw, bh, 10);
+      ctx.stroke();
+
+      // Text
+      ctx.fillStyle = '#0f172a';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, clampedX, bubbleY);
+      ctx.restore();
+    }
+
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    // Animation Loop
+    let lastTime = performance.now();
+    let ledPhase = 0;
+
+    function loop(now) {
+      const dt = Math.min((now - lastTime) / 1000, 0.05);
+      lastTime = now;
+      ledPhase += dt * 6;
+
+      // Night transition
+      if (['WARNING','UFO_ENTER','MASS_LIFT','SUSPENSE_HOLD','SNATCH'].includes(cinePhase)) {
+        state.night = Math.min(1, state.night + dt * 0.9);
+      } else {
+        state.night = Math.max(0, state.night - dt * 0.8);
+      }
+
+      // UFO motion
+      const dx = ufo.targetX - ufo.x;
+      const dy = ufo.targetY - ufo.y;
+      ufo.x += dx * Math.min(1, dt * 3.5);
+      ufo.y += dy * Math.min(1, dt * 3.5);
+      ufo.tilt = Math.max(-0.25, Math.min(0.25, dx * 0.0012));
+
+      if (ufo.beamActive) ufo.beamAlpha = Math.min(1, ufo.beamAlpha + dt * 4);
+      else ufo.beamAlpha = Math.max(0, ufo.beamAlpha - dt * 5);
+
+      // --- Cinematic Sequencer: Mass Lift -> Suspense Hold -> Snatch 2 -> Drop ---
+      if (cinePhase === 'UFO_ENTER') {
+        cineTimer += dt;
+        if (cineTimer >= 1.2 || Math.abs(ufo.y - 220) < 55) {
+          cinePhase = 'MASS_LIFT';
+          cineTimer = 0;
+          ufo.beamActive = true;
+          snd.massLevitation();
+          snd.slideWhistle(true);
+          actors.forEach(a => { a.action = 'BEING_LIFTED'; });
+          const spk = actors[Math.floor(Math.random() * actors.length)];
+          if (spk) {
+            spk.speechText = 'Ủa tiếng gì hút mạnh dữ vậy?! Cứu tui với!!';
+            spk.speechTimer = 2.6;
+          }
+        }
+      } else if (cinePhase === 'MASS_LIFT') {
+        cineTimer += dt;
+        ufo.beamActive = true;
+        const prog = Math.min(1, cineTimer / 1.6);
+        actors.forEach((a, idx) => {
+          if (!a.isCaptured) {
+            const h = 130 + ((idx * 37) % 130);
+            a.floatHeight = h * prog;
+            a.y = a.baseY - a.floatHeight;
+            a.rotation = a.floatAngle * prog;
+          }
+        });
+        if (cineTimer >= 1.8) {
+          cinePhase = 'SUSPENSE_HOLD';
+          cineTimer = 0;
+          lastPulse = 0;
+          lastTick = 0;
+          scanX = V_W / 2;
+          scanDir = 1;
+        }
+      } else if (cinePhase === 'SUSPENSE_HOLD') {
+        cineTimer += dt;
+        ufo.beamActive = true;
+        actors.forEach((a, idx) => {
+          if (!a.isCaptured) {
+            a.y = a.baseY - a.floatHeight + Math.sin(now * 0.004 + idx) * 8;
+            a.rotation = a.floatAngle + Math.sin(now * 0.005 + idx * 0.7) * 0.15;
+          }
+        });
+
+        // Suspense scanner sweep
+        scanX += scanDir * dt * 750;
+        if (scanX > V_W - 220) { scanX = V_W - 220; scanDir = -1; }
+        else if (scanX < 220) { scanX = 220; scanDir = 1; }
+
+        lastPulse += dt;
+        if (lastPulse >= 0.55) {
+          lastPulse = 0;
+          snd.suspensePulse(420 + Math.random() * 80);
+        }
+        lastTick += dt;
+        if (lastTick >= 0.22) {
+          lastTick = 0;
+          snd.cartoonTick(750 + Math.random() * 300);
+        }
+
+        // Floating quotes
+        if (Math.random() < 0.03) {
+          const cand = actors.filter(a => !a.isCaptured && !a.speechText);
+          if (cand.length > 0) {
+            const spk = cand[Math.floor(Math.random() * cand.length)];
+            spk.speechText = FUNNY_SPEECHES.floating[Math.floor(Math.random() * FUNNY_SPEECHES.floating.length)];
+            spk.speechTimer = 2.5;
+          }
+        }
+
+        // Hold suspended for 3.5s for intense suspense
+        if (cineTimer >= 3.5) {
+          cinePhase = 'SNATCH';
+          targetIdx = 0;
+          snatchStage = 'LOCK';
+          snatchTimer = 0;
+          snatchProg = 0;
+        }
+      } else if (cinePhase === 'SNATCH') {
+        snatchTimer += dt;
+        ufo.beamActive = true;
+
+        actors.forEach((a, idx) => {
+          if (!a.isCaptured && a !== targets[targetIdx]) {
+            a.y = a.baseY - a.floatHeight + Math.sin(now * 0.004 + idx) * 8;
+            a.rotation = a.floatAngle + Math.sin(now * 0.005 + idx * 0.7) * 0.15;
+          }
+        });
+
+        const cur = targets[targetIdx];
+        if (!cur) {
+          cinePhase = 'MASS_DROP';
+          cineTimer = 0;
+          ufo.beamActive = false;
+          snd.slideWhistle(false);
+        } else {
+          if (snatchStage === 'LOCK') {
+            scanX += (cur.x - scanX) * Math.min(1, dt * 14);
+            cur.alertMark = true;
+            if (snatchTimer >= 0.7) {
+              cur.speechText = targetIdx === 0 ? 'Sao lại là em?! Thầy ơi!!' : 'Em biết ngay mà! Tha cho em!!';
+              cur.speechTimer = 2.4;
+              snd.slideWhistle(true);
+              snatchStage = 'SUCK';
+              snatchTimer = 0;
+              snatchProg = 0;
+            }
+          } else if (snatchStage === 'SUCK') {
+            snatchProg += dt * 1.6;
+            const p = Math.min(1, snatchProg);
+            cur.x += (ufo.x - cur.x) * p * 0.5;
+            cur.y = cur.baseY - cur.floatHeight + (ufo.y + 70 - (cur.baseY - cur.floatHeight)) * p;
+            cur.rotation += dt * 18;
+
+            if (p >= 1) {
+              cur.isCaptured = true;
+              ufo.counter++;
+              snd.pop();
+              state.captured.push(cur);
+              snatchStage = 'PAUSE';
+              snatchTimer = 0;
+            }
+          } else if (snatchStage === 'PAUSE') {
+            if (snatchTimer >= 0.8) {
+              targetIdx++;
+              if (targetIdx < targets.length) {
+                snatchStage = 'LOCK';
+                snatchTimer = 0;
+              } else {
+                cinePhase = 'MASS_DROP';
+                cineTimer = 0;
+                ufo.beamActive = false;
+                snd.slideWhistle(false);
+              }
+            }
+          }
+        }
+      } else if (cinePhase === 'MASS_DROP') {
+        cineTimer += dt;
+        ufo.beamActive = false;
+
+        let anyFalling = false;
+        actors.forEach(a => {
+          if (!a.isCaptured) {
+            if (a.y < a.baseY) {
+              anyFalling = true;
+              a.vy = (a.vy || 0) + 1600 * dt;
+              a.y += a.vy * dt;
+              a.rotation += (0 - a.rotation) * Math.min(1, dt * 10);
+              if (a.y >= a.baseY) {
+                a.y = a.baseY;
+                a.vy = 0;
+                a.rotation = 0;
+                a.action = 'TRIP';
+                a.floatHeight = 0;
+                snd.thud();
+                a.speechText = FUNNY_SPEECHES.relief[Math.floor(Math.random() * FUNNY_SPEECHES.relief.length)];
+                a.speechTimer = 2.8;
+              }
+            }
+          }
+        });
+
+        if (!anyFalling && cineTimer >= 1.4) {
+          cinePhase = 'EXIT';
+          state.phase = 'EXIT';
+          snd.stopBGM();
+          snd.whoosh();
+          ufo.targetY = -380;
+          ufo.targetX = V_W + 500;
+          setTimeout(() => {
+            state.phase = 'RESULTS';
+            snd.fanfare();
+            showResults();
+          }, 1200);
+        }
+      }
+
+      // Actor animation & speech bubble timer
+      actors.forEach(a => {
+        a.animTimer += dt;
+        if (a.speechTimer > 0) {
+          a.speechTimer -= dt;
+          if (a.speechTimer <= 0) a.speechText = null;
+        }
+        if (a.action === 'WALK') {
+          a.x += a.vx * dt * 45;
+          if (a.x < 110) { a.x = 110; a.vx = Math.abs(a.vx); a.facing = 1; }
+          if (a.x > V_W - 110) { a.x = V_W - 110; a.vx = -Math.abs(a.vx); a.facing = -1; }
+
+          // Lively idle speech chatter
+          if (Math.random() < 0.0035 && a.speechText === null) {
+            const speaking = actors.filter(act => act.speechText !== null).length;
+            if (speaking < 3) {
+              a.speechText = FUNNY_SPEECHES.idle[Math.floor(Math.random() * FUNNY_SPEECHES.idle.length)];
+              a.speechTimer = 3.2;
+            }
+          }
+        }
+      });
+
+      // Render Canvas
+      ctx.clearRect(0, 0, V_W, V_H);
+
+      // Sky
+      const grad = ctx.createLinearGradient(0, 0, 0, 750);
+      grad.addColorStop(0, state.night > 0.5 ? '#111827' : '#60a5fa');
+      grad.addColorStop(1, state.night > 0.5 ? '#1e1b4b' : '#dbeafe');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, V_W, V_H);
+
+      // City Buildings
+      const shops = [
+        { x: 30, w: 170, h: 360, name: 'XE BUÝT', bg: '#0284c7', c: '#f8fafc' },
+        { x: 210, w: 190, h: 460, name: 'NHÀ SÁCH', bg: '#15803d', c: '#fef3c7' },
+        { x: 410, w: 180, h: 420, name: 'CƠM TẤM', bg: '#ea580c', c: '#fed7aa' },
+        { x: 600, w: 190, h: 440, name: 'BÁNH MÌ', bg: '#eab308', c: '#fef08a' },
+        { x: 950, w: 190, h: 450, name: 'TRÀ SỮA', bg: '#059669', c: '#ccfbf1' },
+        { x: 1150, w: 180, h: 460, name: 'HỚT TÓC', bg: '#0f172a', c: '#e2e8f0' },
+        { x: 1340, w: 190, h: 430, name: 'BÚN CHẢ', bg: '#65a30d', c: '#ecfccb' },
+        { x: 1540, w: 180, h: 450, name: 'KEM', bg: '#db2777', c: '#fce7f3' },
+        { x: 1730, w: 180, h: 420, name: 'ĐIỆN THOẠI', bg: '#0284c7', c: '#e0f2fe' }
+      ];
+      shops.forEach(sh => {
+        ctx.fillStyle = sh.c;
+        ctx.fillRect(sh.x, SIDEWALK_Y - sh.h, sh.w, sh.h);
+        for (let i = 0; i < 3; i++) {
+          ctx.fillStyle = state.night > 0.3 ? '#fef08a' : '#93c5fd';
+          ctx.fillRect(sh.x + 30, SIDEWALK_Y - sh.h + 40 + i * 80, 45, 50);
+          ctx.fillRect(sh.x + sh.w - 75, SIDEWALK_Y - sh.h + 40 + i * 80, 45, 50);
+        }
+        ctx.fillStyle = sh.bg;
+        ctx.fillRect(sh.x + 10, SIDEWALK_Y - 100, sh.w - 20, 48);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 20px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(sh.name, sh.x + sh.w / 2, SIDEWALK_Y - 70);
+      });
+
+      // Tree
+      ctx.fillStyle = '#78350f'; ctx.fillRect(860, SIDEWALK_Y - 180, 20, 180);
+      ctx.fillStyle = '#16a34a'; ctx.beginPath(); ctx.arc(870, SIDEWALK_Y - 240, 70, 0, Math.PI * 2); ctx.fill();
+
+      // Sidewalk & Road
+      ctx.fillStyle = state.night > 0.5 ? '#475569' : '#cbd5e1'; ctx.fillRect(0, SIDEWALK_Y, V_W, GROUND_Y - SIDEWALK_Y);
+      ctx.fillStyle = state.night > 0.5 ? '#1e293b' : '#334155'; ctx.fillRect(0, GROUND_Y, V_W, V_H - GROUND_Y);
+
+      // Immense Mega Tractor Beam covering all students
+      if (ufo.beamAlpha > 0.05) {
+        const bGrad = ctx.createLinearGradient(ufo.x, ufo.y + 70, ufo.x, GROUND_Y);
+        bGrad.addColorStop(0, `rgba(56, 189, 248, ${0.88 * ufo.beamAlpha})`);
+        bGrad.addColorStop(0.4, `rgba(45, 212, 191, ${0.5 * ufo.beamAlpha})`);
+        bGrad.addColorStop(1, `rgba(20, 184, 166, ${0.2 * ufo.beamAlpha})`);
+        ctx.fillStyle = bGrad;
+        ctx.beginPath();
+        ctx.moveTo(ufo.x - 80, ufo.y + 70);
+        ctx.lineTo(ufo.x + 80, ufo.y + 70);
+        ctx.lineTo(ufo.x + 810, GROUND_Y);
+        ctx.lineTo(ufo.x - 810, GROUND_Y);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = `rgba(103, 232, 249, ${0.5 * ufo.beamAlpha})`;
+        ctx.beginPath();
+        ctx.ellipse(ufo.x, GROUND_Y, 810, 48, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Suspense Laser Scanner
+      if (['SUSPENSE_HOLD', 'SNATCH'].includes(cinePhase) && ufo.beamAlpha > 0.1) {
+        const isLock = cinePhase === 'SNATCH' && (snatchStage === 'LOCK' || snatchStage === 'SUCK');
+        ctx.strokeStyle = isLock ? '#ef4444' : '#eab308';
+        ctx.lineWidth = isLock ? 4 : 2;
+        ctx.beginPath();
+        ctx.moveTo(ufo.x, ufo.y + 70);
+        ctx.lineTo(scanX, GROUND_Y - 140);
+        ctx.stroke();
+
+        ctx.strokeRect(scanX - 35, GROUND_Y - 175, 70, 70);
+        ctx.fillStyle = isLock ? '#ef4444' : '#fef08a';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(isLock ? 'ĐÃ KHÓA MỤC TIÊU!' : 'ĐANG QUÉT...', scanX, GROUND_Y - 185);
+      }
+
+      // Students (Realistic Human Anatomy & Authentic PE Sportswear)
+      actors.forEach(a => {
+        if (!a.isCaptured) {
+          drawHumanStudent(ctx, a);
+        }
+      });
+
+      // Speech Bubbles (Comic balloons with shadows and tails)
+      actors.forEach(a => {
+        if (!a.isCaptured && a.speechText) {
+          drawSpeechBubble(a.x, a.y - 120 * a.scale, a.speechText);
+        }
+      });
+
+      // Large UFO Saucer
+      ctx.save();
+      ctx.translate(ufo.x, ufo.y);
+      ctx.rotate(ufo.tilt);
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.9)';
+      ctx.beginPath(); ctx.ellipse(0, -14, 125, 95, 0, Math.PI, 0); ctx.fill();
+      // Alien
+      ctx.fillStyle = '#4ade80'; ctx.beginPath(); ctx.ellipse(0, -42, 20, 24, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath(); ctx.ellipse(-7, -44, 6, 9, 0.3, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(7, -44, 6, 9, -0.3, 0, Math.PI * 2); ctx.fill();
+      // Hull
+      ctx.fillStyle = '#e2e8f0'; ctx.beginPath(); ctx.ellipse(0, 16, 330, 68, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#475569'; ctx.beginPath(); ctx.ellipse(0, 38, 300, 52, 0, 0, Math.PI * 2); ctx.fill();
+      // LEDs
+      const colors = ['#ef4444', '#f59e0b', '#10b981', '#06b6d4', '#6366f1', '#ec4899'];
+      for (let i = 0; i < 14; i++) {
+        const ang = (i / 14) * Math.PI;
+        ctx.fillStyle = colors[Math.floor((i + ledPhase) % colors.length)];
+        ctx.beginPath();
+        ctx.arc(Math.cos(ang) * 285, 18 + Math.sin(ang) * 44, 7, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      // Counter HUD
+      ctx.fillStyle = '#022c22'; ctx.fillRect(-65, 0, 130, 42);
+      ctx.strokeStyle = '#10b981'; ctx.lineWidth = 2; ctx.strokeRect(-65, 0, 130, 42);
+      ctx.fillStyle = '#34d399'; ctx.font = 'bold 24px monospace'; ctx.textAlign = 'center';
+      ctx.fillText(`${ufo.counter}/${ufo.total}`, 0, 26);
+      ctx.restore();
+
+      requestAnimationFrame(loop);
+    }
+
+    // Detailed Realistic Human Student Vector Art
+    function drawHumanStudent(ctx, actor) {
+      ctx.save();
+      ctx.translate(actor.x, actor.y);
+      ctx.scale(actor.scale * actor.facing, actor.scale);
+      ctx.rotate(actor.rotation);
+
+      const isGirl = actor.gender === 'girl';
+      const t = actor.animTimer * 7.5;
+
+      let leftLegAngle = 0, rightLegAngle = 0;
+      let leftKneeFlex = 0, rightKneeFlex = 0;
+      let leftArmAngle = 0, rightArmAngle = 0;
+      let leftElbowFlex = 0, rightElbowFlex = 0;
+      let bodyBob = 0, torsoTilt = 0;
+
+      const isFloated = actor.action === 'BEING_LIFTED';
+
+      if (actor.action === 'WALK') {
+        const stride = Math.sin(t);
+        leftLegAngle = stride * 0.42;
+        rightLegAngle = -stride * 0.42;
+        leftKneeFlex = stride < 0 ? Math.abs(stride) * 0.4 : 0;
+        rightKneeFlex = stride > 0 ? Math.abs(stride) * 0.4 : 0;
+        leftArmAngle = -stride * 0.38;
+        rightArmAngle = stride * 0.38;
+        leftElbowFlex = 0.25; rightElbowFlex = 0.25;
+        bodyBob = Math.abs(Math.sin(t * 2)) * 3;
+        torsoTilt = stride * 0.03;
+      } else if (isFloated) {
+        const floatT = actor.animTimer * 12;
+        leftLegAngle = Math.sin(floatT + actor.x) * 0.7;
+        rightLegAngle = -Math.sin(floatT + actor.x) * 0.7;
+        leftKneeFlex = 0.4 + Math.abs(Math.sin(floatT * 1.5)) * 0.5;
+        rightKneeFlex = 0.4 + Math.abs(Math.cos(floatT * 1.5)) * 0.5;
+        leftArmAngle = -2.2 + Math.sin(floatT) * 0.5;
+        rightArmAngle = -1.9 - Math.sin(floatT) * 0.5;
+        leftElbowFlex = 0.4; rightElbowFlex = 0.4;
+      }
+
+      const skinTone = '#ffd7ba';
+      const skinShadow = '#f8b896';
+      const shirtYellow = '#facc15';
+      const shirtYellowShadow = '#eab308';
+      const pantsRedDo = '#881337';
+      const pantsRedDoShadow = '#701a2d';
+      const collarRedDo = '#991b1b';
+      const hasSkirt = isGirl && actor.hairStyle % 2 === 0;
+
+      // Sneaker
+      function drawSneaker() {
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.moveTo(-7, 0); ctx.lineTo(8, 0); ctx.quadraticCurveTo(12, 0, 14, -3);
+        ctx.lineTo(13, -6); ctx.lineTo(-7, -6); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#f1f5f9';
+        ctx.beginPath();
+        ctx.moveTo(-7, -6); ctx.lineTo(13, -6); ctx.lineTo(10, -13); ctx.lineTo(2, -14);
+        ctx.lineTo(-2, -11); ctx.lineTo(-7, -10); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = collarRedDo;
+        ctx.beginPath();
+        ctx.moveTo(0, -6); ctx.lineTo(7, -6); ctx.lineTo(5, -11); ctx.lineTo(2, -11); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = pantsRedDo; ctx.fillRect(-7, -9, 3, 4);
+      }
+
+      // Hand
+      function drawHand(isOpen) {
+        ctx.fillStyle = skinTone;
+        if (isOpen) {
+          ctx.beginPath(); ctx.arc(0, 0, 4.2, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.ellipse(-3.5, -2, 2, 4, -0.6, 0, Math.PI * 2); ctx.fill();
+          for (let fi = -2; fi <= 2; fi += 1.3) {
+            ctx.beginPath(); ctx.ellipse(fi * 2, 5, 1.6, 4.2, fi * 0.25, 0, Math.PI * 2); ctx.fill();
+          }
+        } else {
+          ctx.beginPath(); ctx.ellipse(0, 2, 3.8, 5, 0.2, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.ellipse(3, 1, 1.8, 3.2, 0.5, 0, Math.PI * 2); ctx.fill();
+        }
+      }
+
+      // 1. Back Arm
+      ctx.save();
+      ctx.translate(9, -64 + bodyBob);
+      ctx.rotate(rightArmAngle);
+      ctx.fillStyle = shirtYellow;
+      ctx.beginPath(); ctx.moveTo(-4, -2); ctx.quadraticCurveTo(0, -4, 4, -2); ctx.lineTo(4, 11); ctx.lineTo(-4, 11); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = collarRedDo; ctx.fillRect(-4, 11, 8, 3.5);
+      ctx.translate(0, 14.5); ctx.rotate(rightElbowFlex);
+      ctx.fillStyle = skinTone; ctx.beginPath(); ctx.moveTo(-3, 0); ctx.lineTo(3, 0); ctx.lineTo(2.2, 14); ctx.lineTo(-2.2, 14); ctx.closePath(); ctx.fill();
+      ctx.translate(0, 15); drawHand(isFloated);
+      ctx.restore();
+
+      // 2. Right Leg
+      ctx.save();
+      ctx.translate(6, -34 + bodyBob);
+      ctx.rotate(rightLegAngle);
+      if (!hasSkirt) {
+        ctx.fillStyle = pantsRedDoShadow;
+        ctx.beginPath(); ctx.moveTo(-5, 0); ctx.lineTo(5, 0); ctx.lineTo(4.2, 15); ctx.lineTo(-4.2, 15); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(3, 0, 1.8, 15);
+        ctx.translate(0, 15); ctx.rotate(rightKneeFlex);
+        ctx.fillStyle = pantsRedDoShadow;
+        ctx.beginPath(); ctx.moveTo(-4.2, 0); ctx.lineTo(4.2, 0); ctx.quadraticCurveTo(4.5, 7, 3.2, 17); ctx.lineTo(-3.2, 17); ctx.quadraticCurveTo(-4, 7, -4.2, 0); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(2.3, 0, 1.8, 17);
+        ctx.translate(0, 25); drawSneaker();
+      } else {
+        ctx.fillStyle = skinShadow; ctx.beginPath(); ctx.moveTo(-3.5, 0); ctx.lineTo(3.5, 0); ctx.lineTo(2.8, 16); ctx.lineTo(-2.8, 16); ctx.closePath(); ctx.fill();
+        ctx.translate(0, 16); ctx.rotate(rightKneeFlex);
+        ctx.fillStyle = skinShadow; ctx.beginPath(); ctx.moveTo(-2.8, 0); ctx.lineTo(2.8, 0); ctx.quadraticCurveTo(3.2, 6, 2.2, 16); ctx.lineTo(-2.2, 16); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(-2.6, 11, 5.2, 6);
+        ctx.translate(0, 23); drawSneaker();
+      }
+      ctx.restore();
+
+      // Left Leg
+      ctx.save();
+      ctx.translate(-6, -34 + bodyBob);
+      ctx.rotate(leftLegAngle);
+      if (!hasSkirt) {
+        ctx.fillStyle = pantsRedDo;
+        ctx.beginPath(); ctx.moveTo(-5.2, 0); ctx.lineTo(5.2, 0); ctx.lineTo(4.4, 15); ctx.lineTo(-4.4, 15); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(-5.2, 0, 1.8, 15);
+        ctx.translate(0, 15); ctx.rotate(leftKneeFlex);
+        ctx.fillStyle = pantsRedDo;
+        ctx.beginPath(); ctx.moveTo(-4.4, 0); ctx.lineTo(4.4, 0); ctx.quadraticCurveTo(4.2, 7, 3.2, 17); ctx.lineTo(-3.2, 17); ctx.quadraticCurveTo(-4.8, 7, -4.4, 0); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(-4.2, 0, 1.8, 17);
+        ctx.translate(0, 25); drawSneaker();
+      } else {
+        ctx.fillStyle = skinTone; ctx.beginPath(); ctx.moveTo(-3.5, 0); ctx.lineTo(3.5, 0); ctx.lineTo(2.8, 16); ctx.lineTo(-2.8, 16); ctx.closePath(); ctx.fill();
+        ctx.translate(0, 16); ctx.rotate(leftKneeFlex);
+        ctx.fillStyle = skinTone; ctx.beginPath(); ctx.moveTo(-2.8, 0); ctx.lineTo(2.8, 0); ctx.quadraticCurveTo(3.2, 6, 2.2, 16); ctx.lineTo(-2.2, 16); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(-2.6, 11, 5.2, 6);
+        ctx.translate(0, 23); drawSneaker();
+      }
+      ctx.restore();
+
+      // 3. Torso & Polo Shirt
+      ctx.save();
+      ctx.translate(0, bodyBob);
+      ctx.rotate(torsoTilt);
+      ctx.fillStyle = shirtYellow;
+      ctx.beginPath(); ctx.moveTo(-13, -71); ctx.quadraticCurveTo(0, -73, 13, -71); ctx.lineTo(14, -36); ctx.quadraticCurveTo(0, -34, -14, -36); ctx.lineTo(-13, -71); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = shirtYellowShadow;
+      ctx.beginPath(); ctx.moveTo(8, -71); ctx.lineTo(13, -71); ctx.lineTo(14, -36); ctx.lineTo(9, -35); ctx.closePath(); ctx.fill();
+      // Collar
+      ctx.fillStyle = collarRedDo;
+      ctx.beginPath(); ctx.moveTo(-10, -75); ctx.quadraticCurveTo(0, -77, 10, -75); ctx.lineTo(10, -71); ctx.quadraticCurveTo(0, -73, -10, -71); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(-11, -74); ctx.lineTo(0, -58); ctx.lineTo(-4, -58); ctx.lineTo(-13, -70); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(11, -74); ctx.lineTo(0, -58); ctx.lineTo(4, -58); ctx.lineTo(13, -70); ctx.closePath(); ctx.fill();
+      ctx.fillRect(-2.5, -58, 5, 13);
+      ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(0, -54, 1.6, 0, Math.PI * 2); ctx.arc(0, -48, 1.6, 0, Math.PI * 2); ctx.fill();
+      // Crest
+      ctx.fillStyle = '#b91c1c'; ctx.beginPath(); ctx.moveTo(-9, -60); ctx.lineTo(-4, -60); ctx.lineTo(-4, -54); ctx.lineTo(-6.5, -51); ctx.lineTo(-9, -54); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(-6.5, -56, 1.2, 0, Math.PI * 2); ctx.fill();
+
+      if (hasSkirt) {
+        ctx.fillStyle = pantsRedDo;
+        ctx.beginPath(); ctx.moveTo(-14, -37); ctx.lineTo(14, -37); ctx.lineTo(19, -19); ctx.lineTo(-19, -19); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.8; ctx.beginPath(); ctx.moveTo(-18, -21); ctx.lineTo(18, -21); ctx.stroke();
+      }
+      ctx.restore();
+
+      // 4. Head, Face & Hair
+      ctx.save();
+      const headY = -87 + bodyBob;
+      ctx.fillStyle = skinTone; ctx.beginPath(); ctx.moveTo(-5, headY + 11); ctx.lineTo(5, headY + 11); ctx.lineTo(6.5, headY + 19); ctx.lineTo(-6.5, headY + 19); ctx.closePath(); ctx.fill();
+
+      // Head contour
+      ctx.beginPath();
+      ctx.moveTo(-13, headY - 6);
+      ctx.bezierCurveTo(-14, headY + 8, -9, headY + 16, 0, headY + 18.5);
+      ctx.bezierCurveTo(9, headY + 16, 14, headY + 8, 13, headY - 6);
+      ctx.bezierCurveTo(13, headY - 22, -13, headY - 22, -13, headY - 6);
+      ctx.closePath();
+      ctx.fill();
+
+      // Ears
+      ctx.beginPath(); ctx.ellipse(-13.5, headY + 2, 3.2, 5, -0.15, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(13.5, headY + 2, 3.2, 5, 0.15, 0, Math.PI * 2); ctx.fill();
+      // Cheeks
+      ctx.fillStyle = 'rgba(251, 113, 133, 0.45)';
+      ctx.beginPath(); ctx.ellipse(-7.5, headY + 7, 3.5, 2.2, 0, 0, Math.PI * 2); ctx.ellipse(7.5, headY + 7, 3.5, 2.2, 0, 0, Math.PI * 2); ctx.fill();
+
+      // Eyes
+      if (isFloated) {
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.ellipse(-5.5, headY, 4.2, 5.2, 0, 0, Math.PI * 2); ctx.ellipse(5.5, headY, 4.2, 5.2, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath(); ctx.arc(-5.5, headY, 2.2, 0, Math.PI * 2); ctx.arc(5.5, headY, 2.2, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.arc(-6.2, headY - 1, 1, 0, Math.PI * 2); ctx.arc(4.8, headY - 1, 1, 0, Math.PI * 2); ctx.fill();
+        // Screaming mouth
+        ctx.fillStyle = '#881337'; ctx.beginPath(); ctx.ellipse(0, headY + 11.5, 4.2, 5.5, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(-3, headY + 7.5, 6, 2.5);
+        ctx.fillStyle = '#f43f5e'; ctx.beginPath(); ctx.ellipse(0, headY + 14, 3, 2, 0, 0, Math.PI * 2); ctx.fill();
+      } else {
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.ellipse(-5.5, headY + 0.5, 3.8, 4.5, 0, 0, Math.PI * 2); ctx.ellipse(5.5, headY + 0.5, 3.8, 4.5, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath(); ctx.ellipse(-5.5, headY + 0.5, 2.8, 3.8, 0, 0, Math.PI * 2); ctx.ellipse(5.5, headY + 0.5, 2.8, 3.8, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.arc(-6.5, headY - 1, 1.4, 0, Math.PI * 2); ctx.arc(4.5, headY - 1, 1.4, 0, Math.PI * 2);
+        ctx.arc(-4.5, headY + 1.8, 0.8, 0, Math.PI * 2); ctx.arc(6.5, headY + 1.8, 0.8, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#e11d48'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(0, headY + 8, 3.5, 0.2, Math.PI - 0.2); ctx.stroke();
+      }
+
+      // Hair
+      ctx.fillStyle = actor.hairColor;
+      if (isGirl) {
+        if (actor.hairStyle % 2 === 0) {
+          ctx.beginPath(); ctx.arc(0, headY - 7, 15.5, Math.PI * 0.85, Math.PI * 2.15); ctx.fill();
+          ctx.fillRect(-15, headY - 4, 3.5, 14); ctx.fillRect(11.5, headY - 4, 3.5, 14);
+          ctx.fillStyle = collarRedDo; ctx.beginPath(); ctx.arc(-10, headY - 14, 4.5, 0, Math.PI * 2); ctx.fill();
+        } else {
+          ctx.beginPath(); ctx.arc(0, headY - 6, 16.5, Math.PI * 0.8, Math.PI * 2.2); ctx.fill();
+          ctx.fillRect(-16.5, headY - 4, 6, 26); ctx.fillRect(10.5, headY - 4, 6, 26);
+        }
+      } else {
+        ctx.beginPath(); ctx.arc(0, headY - 7, 16, Math.PI * 0.82, Math.PI * 2.18); ctx.fill();
+        ctx.fillRect(-14, headY - 8, 28, 7);
+      }
+      ctx.restore();
+
+      // 5. Front Arm
+      ctx.save();
+      ctx.translate(-9, -64 + bodyBob);
+      ctx.rotate(leftArmAngle);
+      ctx.fillStyle = shirtYellow;
+      ctx.beginPath(); ctx.moveTo(-4, -2); ctx.quadraticCurveTo(0, -4, 4, -2); ctx.lineTo(4, 11); ctx.lineTo(-4, 11); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = collarRedDo; ctx.fillRect(-4, 11, 8, 3.5);
+      ctx.translate(0, 14.5); ctx.rotate(leftElbowFlex);
+      ctx.fillStyle = skinTone; ctx.beginPath(); ctx.moveTo(-3, 0); ctx.lineTo(3, 0); ctx.lineTo(2.2, 14); ctx.lineTo(-2.2, 14); ctx.closePath(); ctx.fill();
+      ctx.translate(0, 15); drawHand(isFloated);
+      ctx.restore();
+
+      ctx.restore();
+
+      // Name Tag
+      ctx.save();
+      const tagOffset = isFloated ? 125 : 108;
+      const labelY = actor.y - tagOffset * actor.scale;
+      ctx.font = 'bold 15px sans-serif';
+      const tw = ctx.measureText(actor.name).width;
+      const nw = tw + 28;
+      ctx.fillStyle = '#ffffff';
+      roundRect(ctx, actor.x - nw / 2, labelY - 14, nw, 28, 14);
+      ctx.fill();
+      ctx.strokeStyle = isFloated ? '#ef4444' : '#cbd5e1';
+      ctx.lineWidth = isFloated ? 2.5 : 1.5;
+      ctx.stroke();
+      ctx.fillStyle = isFloated ? '#b91c1c' : '#0f172a';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(actor.name, actor.x, labelY);
+      ctx.restore();
+    }
+
+    function showResults() {
+      const calledSet = getCalledNames(state.activeClassId);
+      state.captured.forEach(std => calledSet.add(std.name));
+      state.called[state.activeClassId] = [...calledSet];
+      persistClasses();
+      refreshBadge();
+      const now = new Date();
+      document.getElementById('res-time').innerText = now.toLocaleTimeString('vi-VN', { hour:'2-digit', minute:'2-digit' }) + ' - ' + now.toLocaleDateString('vi-VN');
+      const listEl = document.getElementById('results-list');
+      listEl.innerHTML = '';
+      state.captured.forEach((std, i) => {
+        const item = document.createElement('div');
+        item.className = 'student-item';
+        item.innerHTML = `
+          <div class="student-avatar">${std.gender === 'girl' ? '👧' : '👦'}</div>
+          <div>
+            <div style="font-size:11px; font-weight:800; color:#94a3b8; text-transform:uppercase;">NGƯỜI THỨ ${i + 1}</div>
+            <div style="font-size:30px; font-weight:900; color:#0f172a;">${std.name}</div>
+          </div>
+        `;
+        listEl.appendChild(item);
+      });
+      document.getElementById('res-title').innerText = state.captured.length > 1 ? 'Mời các bạn lên bảng!' : 'Mời bạn lên bảng!';
+      document.getElementById('result-modal').classList.add('active');
+      document.getElementById('btn-start').disabled = false;
+    }
+
+    // ---- Nhac nen tu may (luu IndexedDB tren may nay) ----
+    let customMusicAudio = null, customMusicOn = false, customMusicName = '';
+    function customMusicDB() {
+      return new Promise((res, rej) => {
+        const r = indexedDB.open('ufo_music_db', 1);
+        r.onupgradeneeded = () => { if (!r.result.objectStoreNames.contains('music')) r.result.createObjectStore('music'); };
+        r.onsuccess = () => res(r.result);
+        r.onerror = () => rej(r.error);
+      });
+    }
+    async function customMusicSave(blob, name) {
+      const db = await customMusicDB();
+      await new Promise((res, rej) => {
+        const tx = db.transaction('music', 'readwrite');
+        tx.objectStore('music').put({ blob, name }, 'bgm');
+        tx.oncomplete = res; tx.onerror = () => rej(tx.error);
+      });
+    }
+    async function customMusicLoad() {
+      const db = await customMusicDB();
+      return new Promise((res, rej) => {
+        const tx = db.transaction('music', 'readonly');
+        const q = tx.objectStore('music').get('bgm');
+        q.onsuccess = () => res(q.result || null);
+        q.onerror = () => rej(q.error);
+      });
+    }
+    function customMusicRefreshUI() {
+      const t = document.getElementById('musicToggleBtn');
+      const c = document.getElementById('musicClearBtn');
+      const st = document.getElementById('musicStatus');
+      if (!t) return;
+      const has = !!customMusicAudio;
+      t.disabled = !has; c.disabled = !has;
+      t.textContent = customMusicOn ? '⏸ Tắt nhạc' : '▶ Bật nhạc';
+      if (st) st.textContent = has ? ('Nhạc nền: ' + customMusicName) : 'Chưa có nhạc — bấm Tải nhạc để chọn file trước.';
+    }
+    async function restoreCustomMusic() {
+      try {
+        const rec = await customMusicLoad();
+        if (!rec) { customMusicRefreshUI(); return; }
+        customMusicAudio = new Audio(URL.createObjectURL(rec.blob));
+        customMusicAudio.loop = true;
+        customMusicName = rec.name || 'nhạc đã lưu';
+        customMusicOn = false; // trinh duyet chan tu phat khi moi mo trang -> doi giao vien bam Bat nhac
+        customMusicRefreshUI();
+      } catch (e) { customMusicRefreshUI(); }
+    }
+    async function toggleCustomMusic() {
+      if (!customMusicAudio) return;
+      try {
+        if (customMusicOn) { customMusicAudio.pause(); customMusicOn = false; }
+        else { try { snd.stopBGM(); } catch (e) {} await customMusicAudio.play(); customMusicOn = true; }
+      } catch (e) {}
+      customMusicRefreshUI();
+    }
+    async function clearCustomMusic() {
+      try {
+        const db = await customMusicDB();
+        await new Promise((res, rej) => {
+          const tx = db.transaction('music', 'readwrite');
+          tx.objectStore('music').delete('bgm');
+          tx.oncomplete = res; tx.onerror = () => rej(tx.error);
+        });
+      } catch (e) {}
+      if (customMusicAudio) { customMusicAudio.pause(); customMusicAudio = null; }
+      customMusicOn = false; customMusicName = '';
+      customMusicRefreshUI();
+    }
+    document.getElementById('musicFileInput').addEventListener('change', async (e) => {
+      const f = e.target.files && e.target.files[0];
+      e.target.value = '';
+      if (!f) return;
+      try {
+        await customMusicSave(f, f.name);
+        if (customMusicAudio) customMusicAudio.pause();
+        customMusicAudio = new Audio(URL.createObjectURL(f));
+        customMusicAudio.loop = true;
+        customMusicName = f.name;
+        try { snd.stopBGM(); } catch (err) {}
+        await customMusicAudio.play();
+        customMusicOn = true;
+        customMusicRefreshUI();
+      } catch (err) {}
+    });
+
+    // Start
+    initActors();
+    restoreCustomMusic();
+    requestAnimationFrame(loop);
+  </script>
+
+<!-- Navigation back to Gọi Tên Ngôi Sao -->
+<style id="nav-star-style">
+  .hub-back-btn {
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 999999;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(11, 18, 48, 0.88);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #ffc23d;
+    border: 1.5px solid rgba(255, 194, 61, 0.45);
+    padding: 7px 16px;
+    border-radius: 999px;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-size: 13.5px;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .hub-back-btn:hover {
+    background: #ffc23d;
+    color: #0b1230;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 194, 61, 0.5);
+  }
+</style>
+<script id="nav-star-script">
+(function() {
+  // Ẩn nút quay về nếu game đang được nhúng trong khung iframe của Gọi Tên Ngôi Sao
+  if (window.self !== window.top) return;
+  
+  window.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('hubBackBtn')) return;
+    var a = document.createElement('a');
+    a.id = 'hubBackBtn';
+    a.className = 'hub-back-btn';
+    a.href = 'index.html';
+    a.title = 'Quay về trang chính Gọi Tên Ngôi Sao';
+    a.innerHTML = '<span style="font-size:16px;">⭐</span><span>Gọi Tên Ngôi Sao</span>';
+    document.body.appendChild(a);
+  });
+})();
+</script>
+
+</body>
+</html>

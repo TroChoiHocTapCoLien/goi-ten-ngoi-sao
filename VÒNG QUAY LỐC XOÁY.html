@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vòng Xoáy Tình Yêu — Gọi Tên Ngẫu Nhiên</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Quicksand', system-ui, -apple-system, sans-serif; background: #f8fafc; color: #1e293b; }
+  header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; background: #fff; border-bottom: 1px solid #e2e8f0; box-shadow: 0 1px 4px rgba(0,0,0,.05); position: sticky; top: 0; z-index: 40; }
+  header h1 { font-size: 20px; margin: 0; font-weight: 900; }
+  header .subtitle { font-size: 12px; color: #94a3b8; }
+  header .spacer { margin-left: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  header label { font-size: 13px; font-weight: 800; color: #475569; }
+  select#classSelect { padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 12px; background: #fff; font-weight: 700; color: #334155; outline: none; max-width: 220px; }
+  #classInfo { font-size: 12px; font-weight: 800; color: #047857; }
+  .hbtn { padding: 8px 14px; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer; border: 1px solid #cbd5e1; background: #fff; color: #334155; transition: all .15s; }
+  .hbtn:hover { background: #f1f5f9; }
+  .hbtn.primary { background: #059669; color: #fff; border-color: #059669; }
+  .hbtn.primary:hover { background: #047857; }
+  .hbtn:disabled { opacity: .5; cursor: default; }
+  #game-wrap { display: flex; gap: 16px; padding: 16px; height: calc(100dvh - 65px); min-height: 560px; }
+  #sidebar { width: 300px; flex-shrink: 0; background: #ecfdf5; border: 1px solid #d1fae5; border-radius: 24px; padding: 18px; display: flex; flex-direction: column; gap: 18px; overflow-y: auto; }
+  #sidebar h3 { font-size: 11px; font-weight: 900; color: #065f46; text-transform: uppercase; letter-spacing: .1em; margin: 0 0 8px 4px; }
+  .btn-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .fx-btn, .th-btn { flex: 1 1 45%; padding: 9px 6px; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer; border: 1px solid #cbd5e1; background: #fff; color: #475569; transition: all .15s; }
+  .fx-btn.active, .th-btn.active { background: #059669; color: #fff; border-color: #059669; box-shadow: 0 4px 12px rgba(5,150,105,.35); }
+  .th-btn { flex: 1 1 30%; font-size: 12px; padding: 8px 4px; }
+  #spinBtn { width: 100%; padding: 16px; background: #059669; color: #fff; font-size: 18px; font-weight: 900; border: none; border-radius: 16px; cursor: pointer; box-shadow: 0 8px 20px rgba(5,150,105,.35); transition: all .15s; }
+  #spinBtn:hover:not(:disabled) { background: #047857; transform: translateY(-1px); }
+  #spinBtn:disabled { background: #94a3b8; box-shadow: none; cursor: default; }
+  .counter-box { background: #fff; border: 1px solid #d1fae5; border-radius: 16px; padding: 12px 14px; font-size: 14px; font-weight: 800; color: #334155; display: flex; flex-direction: column; gap: 4px; }
+  .counter-box .big { font-size: 16px; color: #065f46; }
+  .slider-row { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 700; color: #475569; }
+  .slider-row input { flex: 1; accent-color: #059669; }
+  #stage { flex: 1; position: relative; overflow: hidden; border-radius: 24px; border: 1px solid #e2e8f0; box-shadow: inset 0 2px 12px rgba(0,0,0,.12); transition: background .5s; min-width: 0; }
+  .stage-empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; color: rgba(255,255,255,.6); }
+  .fly-card { position: absolute; top: 0; left: 0; width: 84px; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: transform 75ms linear, opacity .3s; will-change: transform; }
+  .fly-card.called { opacity: .2; }
+  .fly-card.highlight .avatar, .fly-card.winner .avatar { transform: scale(1.5); box-shadow: 0 0 0 4px #fff, 0 12px 28px rgba(0,0,0,.4); z-index: 30; }
+  .avatar { width: 52px; height: 52px; border-radius: 9999px; border: 2px solid #ccc; position: relative; overflow: hidden; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,.2); transition: transform .15s; background: #fff; }
+  .avatar .hair { position: absolute; top: 0; left: 0; width: 100%; height: 45%; border-radius: 9999px 9999px 0 0; }
+  .avatar .eyes { position: absolute; top: 48%; left: 22%; width: 56%; display: flex; justify-content: space-between; }
+  .avatar .eyes span { width: 6px; height: 6px; border-radius: 9999px; background: #1e293b; }
+  .avatar .smile { position: absolute; top: 68%; left: 36%; width: 28%; height: 4px; border-bottom: 2px solid #1e293b; border-radius: 9999px; }
+  .card-name { font-size: 12px; font-weight: 900; color: #1e293b; background: rgba(255,255,255,.92); padding: 2px 8px; border-radius: 9999px; max-width: 84px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 1px 4px rgba(0,0,0,.15); }
+  #modalLayer { display: none; position: fixed; inset: 0; z-index: 100; }
+  .modal-backdrop { position: absolute; inset: 0; background: rgba(15,23,42,.8); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 16px; }
+  #confettiCanvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .winner-card { position: relative; z-index: 10; background: #fff; border-radius: 40px; box-shadow: 0 24px 60px rgba(0,0,0,.4); padding: 40px 48px; display: flex; flex-direction: column; align-items: center; max-width: 420px; width: 100%; text-align: center; }
+  .modal-x { position: absolute; top: 16px; right: 16px; border: none; background: #f1f5f9; color: #94a3b8; border-radius: 9999px; width: 36px; height: 36px; font-size: 16px; cursor: pointer; }
+  .winner-avatar { width: 128px; height: 128px; border-radius: 9999px; border: 4px solid #ccc; position: relative; overflow: hidden; box-shadow: 0 12px 28px rgba(0,0,0,.25); margin-bottom: 20px; background: #fff; }
+  .winner-avatar .hair { position: absolute; top: 0; left: 0; width: 100%; height: 45%; }
+  .winner-avatar .eyes { position: absolute; top: 48%; left: 22%; width: 56%; display: flex; justify-content: space-between; }
+  .winner-avatar .eyes span { width: 12px; height: 12px; border-radius: 9999px; background: #1e293b; }
+  .winner-avatar .smile { position: absolute; top: 68%; left: 36%; width: 28%; height: 8px; border-bottom: 3px solid #1e293b; border-radius: 9999px; }
+  .winner-label { font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: .15em; margin-bottom: 6px; }
+  .winner-name { font-size: 36px; font-weight: 900; color: #1e293b; line-height: 1.15; margin-bottom: 8px; }
+  .winner-class { font-size: 13px; font-weight: 800; color: #2563eb; background: #eff6ff; border: 1px solid #dbeafe; padding: 5px 14px; border-radius: 12px; margin-bottom: 16px; }
+  .winner-invite { font-size: 24px; font-weight: 900; color: #d97706; margin-bottom: 16px; }
+  .btn-go { padding: 14px 40px; background: #059669; color: #fff; font-size: 18px; font-weight: 900; border: none; border-radius: 16px; cursor: pointer; box-shadow: 0 8px 20px rgba(5,150,105,.35); }
+  .btn-go:hover { background: #047857; }
+  #classManagerModal { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.7); z-index: 100; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(3px); }
+  .manager-card { background: #fff; border-radius: 28px; box-shadow: 0 24px 60px rgba(0,0,0,.4); width: 100%; max-width: 640px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
+  .manager-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid #f1f5f9; }
+  .manager-head h3 { margin: 0; font-size: 20px; font-weight: 900; }
+  .manager-note { padding: 12px 22px 0; font-size: 13px; color: #64748b; line-height: 1.5; }
+  #classBlocks { flex: 1; overflow-y: auto; padding: 16px 22px; display: flex; flex-direction: column; gap: 14px; }
+  .class-block { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 14px; }
+  .class-block .row { display: flex; gap: 8px; margin-bottom: 8px; }
+  .block-name { flex: 1; min-width: 0; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 12px; font-weight: 800; outline: none; }
+  .block-name:focus, .block-names:focus { border-color: #059669; }
+  .block-del { padding: 0 12px; border-radius: 12px; border: 1px solid #cbd5e1; background: #fff; color: #64748b; font-weight: 800; cursor: pointer; }
+  .block-del:hover { background: #fef2f2; color: #dc2626; }
+  .block-names { width: 100%; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 12px; outline: none; resize: vertical; font-family: inherit; }
+  .manager-foot { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 22px; border-top: 1px solid #f1f5f9; }
+  .manager-foot .save-all { margin-left: auto; background: #059669; color: #fff; border-color: #059669; }
+  #toastBox { position: fixed; bottom: 24px; right: 24px; z-index: 200; display: flex; flex-direction: column; gap: 8px; }
+  .toast { padding: 14px 20px; border-radius: 14px; color: #fff; font-weight: 800; font-size: 14px; box-shadow: 0 12px 30px rgba(0,0,0,.2); max-width: 380px; }
+  .toast.success { background: linear-gradient(135deg, #10b981, #059669); }
+  .toast.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
+  .toast.fadeOut { opacity: 0; transition: opacity .3s; }
+</style>
+
+<!-- Đồng bộ cơ chế & màu sắc vũ trụ với Gọi Tên Ngôi Sao -->
+<style id="star-app-sync-theme">
+  :root {
+    --sky: #0b1230 !important;
+    --sky2: #151f4a !important;
+    --panel: #121a3d !important;
+    --panel2: #1a2452 !important;
+    --line: #2a3670 !important;
+    --ink: #eef2ff !important;
+    --muted: #a3add6 !important;
+    --star: #ffc23d !important;
+    --star2: #ffe08a !important;
+  }
+  body {
+    background: radial-gradient(1200px 700px at 70% -10%, #2a2f7a 0%, transparent 60%),
+                radial-gradient(900px 600px at -10% 110%, #3b1d5e 0%, transparent 55%),
+                #0b1230 !important;
+    color: #eef2ff !important;
+    font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif !important;
+  }
+  .modal, .dialog, .popup, .card, [class*="panel"], [class*="modal-content"] {
+    background: #121a3d !important;
+    color: #eef2ff !important;
+    border-color: #2a3670 !important;
+  }
+  button, .btn {
+    font-family: 'Be Vietnam Pro', sans-serif !important;
+  }
+</style>
+<script id="star-app-sync-script">
+(function(){
+  // Tự động đồng bộ danh sách học sinh từ app chính "Gọi Tên Ngôi Sao"
+  try {
+    var raw = localStorage.getItem('goi-ten-ngoi-sao-v1');
+    if (raw) {
+      var data = JSON.parse(raw);
+      var curCls = (data.classes || []).find(function(c){ return c.id === data.cur; }) || (data.classes || [])[0];
+      if (curCls && curCls.students && curCls.students.length > 0) {
+        window.STAR_APP_STUDENTS = curCls.students.slice();
+        console.log('[Gọi Tên Ngôi Sao] Đã đồng bộ lớp:', curCls.name, '(' + curCls.students.length + ' bạn)');
+      }
+    }
+  } catch(e) {}
+})();
+</script>
+
+</head>
+<body>
+<header>
+  <div>
+    <h1>💗 VÒNG XOÁY TÌNH YÊU</h1>
+    <div class="subtitle">Gọi tên ngẫu nhiên — bản chuyển giao, chỉ gọi tên lên bảng</div>
+  </div>
+  <div class="spacer">
+    <label for="classSelect">🏫 Lớp:</label>
+    <select id="classSelect" onchange="selectClass(this.value)"></select>
+    <span id="classInfo"></span>
+    <button class="hbtn primary" onclick="openClassManager()">👥 Quản lý lớp</button>
+    <button class="hbtn" onclick="resetCallRound()" title="Xóa lịch sử đã gọi của lớp đang chọn để gọi lại từ đầu">↻ Vòng mới</button>
+    <button class="hbtn" onclick="document.getElementById('musicFile').click()" title="Chọn file nhạc trên máy để phát lặp lại trong lúc chơi (lưu trên máy này)">🎵 Tải nhạc</button>
+    <button class="hbtn" id="musicToggle" onclick="toggleMusic()" title="Bật/tắt nhạc nền đã tải" disabled>▶ Bật nhạc</button>
+    <button class="hbtn" id="musicClear" onclick="clearMusic()" title="Xóa nhạc đã lưu" disabled>✕</button>
+    <button class="hbtn" id="soundBtn" onclick="toggleSound()" title="Bật/tắt tiếng tích khi quay">🔊</button>
+    <input type="file" id="musicFile" accept="audio/*,.mp3,.wav,.ogg,.m4a" hidden>
+  </div>
+</header>
+
+<div id="game-wrap">
+  <aside id="sidebar">
+    <div>
+      <h3>✦ Hiệu ứng bay</h3>
+      <div class="btn-grid" id="effectBar"></div>
+    </div>
+    <div>
+      <h3>🎨 Nền sân khấu</h3>
+      <div class="btn-grid" id="themeBar"></div>
+    </div>
+    <div>
+      <h3>⏱ Thời gian quay</h3>
+      <div class="slider-row">
+        <span>Thời gian quay:</span>
+        <input type="range" min="1" max="10" value="4" id="timeSlider" oninput="spinSecs=parseInt(this.value);document.getElementById('timeLabel').textContent=spinSecs+'s';">
+        <span id="timeLabel" style="font-weight:900;color:#059669;">4s</span>
+      </div>
+    </div>
+    <div class="counter-box">
+      <span class="big" id="counter">Còn lại: 0/0</span>
+      <span id="calledCounter">Đã gọi: 0 bạn</span>
+    </div>
+    <div style="margin-top:auto;">
+      <button id="spinBtn" onclick="startSpin()">✦ QUAY GỌI TÊN ✦</button>
+    </div>
+  </aside>
+  <div id="stage"></div>
+</div>
+
+<div id="modalLayer"></div>
+<div id="toastBox"></div>
+
+<div id="classManagerModal" onclick="if(event.target.id==='classManagerModal') closeClassManager()">
+  <div class="manager-card">
+    <div class="manager-head">
+      <h3>👥 Quản lý lớp</h3>
+      <button class="hbtn" onclick="closeClassManager()">✕</button>
+    </div>
+    <div class="manager-note">Mỗi khối là một lớp: ô trên nhập tên lớp, ô dưới dán tên học sinh (mỗi dòng một tên, có thể dán dạng "01, Nguyễn Văn An"). Bấm <b>Lưu tất cả</b> để lưu toàn bộ các khối cùng lúc — sau đó chỉ cần chọn lớp ở thanh trên là danh sách lớp đó tự hiện ra, không cần dán lại.</div>
+    <div id="classBlocks"></div>
+    <div class="manager-foot">
+      <button class="hbtn" onclick="addClassBlock()">＋ Thêm lớp</button>
+      <button class="hbtn" onclick="fillSampleBlock()">Nạp lớp mẫu</button>
+      <button class="hbtn save-all" onclick="saveAllClasses()">💾 Lưu tất cả</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ HAM THUAN (kiem chung duoc bang harness Node) ============
+function parseNames(text) {
+  return (text || '').split(/\r?\n/).map(s => s.trim())
+    .map(s => s.replace(/^\d{1,3}\s*[,.)]\s*/, '').trim())
+    .filter(Boolean);
+}
+function autoClassName(usedNames) {
+  const used = new Set(usedNames.map(n => String(n).trim().toLowerCase()));
+  let n = 1;
+  while (used.has(('lớp ' + n).toLowerCase())) n++;
+  return 'Lớp ' + n;
+}
+function uid() { return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function eligibleNames(students, calledArr) {
+  const called = new Set(calledArr || []);
+  return students.filter(n => !called.has(n));
+}
+// resolveSaveAll(blocks): blocks = [{id, name, students[]}]
+// Tra ve {error} neu trung ten / khong co lop nao, neu khong {classes}
+function resolveSaveAll(blocks) {
+  const parsed = blocks.map(b => ({ id: b.id || '', name: (b.name || '').trim(), students: (b.students || []).filter(Boolean) }))
+    .filter(b => b.students.length > 0);
+  if (!parsed.length) return { error: 'Cần ít nhất 1 lớp có học sinh mới lưu được!' };
+  const usedNames = parsed.map(b => b.name).filter(Boolean);
+  parsed.forEach(b => { if (!b.name) { b.name = autoClassName(usedNames); usedNames.push(b.name); } });
+  const seen = new Set();
+  for (const b of parsed) {
+    const key = b.name.toLowerCase();
+    if (seen.has(key)) return { error: 'Trùng tên lớp: "' + b.name + '" — chưa lưu gì cả, hãy đổi tên rồi bấm "Lưu tất cả" lại.' };
+    seen.add(key);
+  }
+  return { classes: parsed.map(b => ({ id: b.id || uid(), name: b.name, students: b.students })) };
+}
+
+// ============ DU LIEU ============
+const STORE_KEY = 'vongxoay_tinhyeu_classes_v1';
+const SAMPLE_NAMES = ['Học sinh 01', 'Học sinh 02', 'Học sinh 03', 'Học sinh 04', 'Học sinh 05',
+                      'Học sinh 06', 'Học sinh 07', 'Học sinh 08', 'Học sinh 09', 'Học sinh 10'];
+let classesData = { classes: [], activeClassId: null, called: {} };
+
+function loadClasses() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) {
+      const d = JSON.parse(raw);
+      if (d && Array.isArray(d.classes) && d.classes.length) {
+        d.classes = d.classes
+          .filter(c => c && Array.isArray(c.students) && c.students.length)
+          .map(c => ({ id: c.id || uid(), name: String(c.name || '').trim() || 'Lớp', students: c.students.map(String) }));
+        if (d.classes.length) {
+          classesData = d;
+          if (!classesData.called || typeof classesData.called !== 'object') classesData.called = {};
+          if (!classesData.classes.some(c => c.id === classesData.activeClassId))
+            classesData.activeClassId = classesData.classes[0].id;
+          return;
+        }
+      }
+    }
+  } catch (e) {}
+  classesData = { classes: [{ id: 'lop-mau', name: 'Lớp mẫu', students: [...SAMPLE_NAMES] }],
+                  activeClassId: 'lop-mau', called: {} };
+}
+function saveClasses() { try { localStorage.setItem(STORE_KEY, JSON.stringify(classesData)); } catch (e) {} }
+function getActiveClass() {
+  return classesData.classes.find(c => c.id === classesData.activeClassId) || classesData.classes[0] || null;
+}
+function getCalled(classId) { return classesData.called[classId] || []; }
+function getEligible() {
+  const cls = getActiveClass();
+  if (!cls) return [];
+  return eligibleNames(cls.students, getCalled(cls.id));
+}
+
+// ============ THEME / HIEU UNG / MAU THE (tu app goc, gradient CSS thuan) ============
+const THEMES = [
+  { id: 'cosmic', name: 'Vũ trụ', bg: 'radial-gradient(ellipse at center, #1e5f74 0%, #0a2233 100%)' },
+  { id: 'aurora', name: 'Cực quang', bg: 'linear-gradient(135deg, #4c1d95 0%, #ec4899 50%, #8b5cf6 100%)' },
+  { id: 'ocean', name: 'Đại dương', bg: 'linear-gradient(to right, #0052d4, #4364f7, #6fb1fc)' },
+  { id: 'bamboo', name: 'Rừng trúc', bg: 'linear-gradient(to right, #0f9b0f, #000000)' },
+  { id: 'sunset', name: 'Mặt trời', bg: 'linear-gradient(135deg, #f97316 0%, #e11d48 50%, #7c2d12 100%)' },
+  { id: 'candy', name: 'Kẹo ngọt', bg: 'linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #f43f5e 100%)' },
+  { id: 'chalkboard', name: 'Bảng phấn', bg: 'radial-gradient(ellipse at center, #1b4d3e 0%, #0e2a22 100%)' }
+];
+const EFFECTS = [
+  { id: 'chaotic', label: 'Hỗn loạn' }, { id: 'spiral', label: 'Tròn ốc' },
+  { id: 'fire', label: 'Đốt lửa' }, { id: 'wave', label: 'Sóng' },
+  { id: 'planet', label: 'Hành tinh' }, { id: 'eight', label: 'Số 8' },
+  { id: 'pendulum', label: 'Con lắc' }, { id: 'vortex', label: 'Xoáy lốc' }
+];
+const PALETTE = [
+  { border: '#ec4899', bg: '#fdf2f8', hair: '#374151' },
+  { border: '#3b82f6', bg: '#eff6ff', hair: '#1e293b' },
+  { border: '#eab308', bg: '#fefce8', hair: '#78350f' },
+  { border: '#10b981', bg: '#ecfdf5', hair: '#1f2937' },
+  { border: '#8b5cf6', bg: '#f5f3ff', hair: '#312e81' },
+  { border: '#f97316', bg: '#fff7ed', hair: '#451a03' },
+  { border: '#06b6d4', bg: '#ecfeff', hair: '#134e4a' }
+];
+
+// ============ TRANG THAI GAME ============
+let effect = 'vortex';
+let theme = 'cosmic';
+let spinSecs = 4;
+let soundOn = true;
+let spinning = false;
+let animTime = 0;
+let rafId = null;
+let cards = [];
+let highlightIdx = -1;
+let spinTimer = null;
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function showToast(msg, type) {
+  const box = document.getElementById('toastBox');
+  const t = document.createElement('div');
+  t.className = 'toast ' + (type === 'error' ? 'error' : 'success');
+  t.textContent = msg;
+  box.appendChild(t);
+  setTimeout(() => { t.classList.add('fadeOut'); setTimeout(() => t.remove(), 300); }, 3000);
+}
+
+// ============ GIAO DIEN: SELECT LOP / NUT HIEU UNG / THEME ============
+function refreshClassSelect() {
+  const sel = document.getElementById('classSelect');
+  sel.innerHTML = classesData.classes.map(c =>
+    '<option value="' + c.id + '">' + esc(c.name) + ' (' + c.students.length + ' HS)</option>').join('');
+  const cls = getActiveClass();
+  sel.value = cls ? cls.id : '';
+}
+function updateCounters() {
+  const cls = getActiveClass();
+  const total = cls ? cls.students.length : 0;
+  const rem = getEligible().length;
+  document.getElementById('counter').textContent = 'Còn lại: ' + rem + '/' + total;
+  document.getElementById('calledCounter').textContent = 'Đã gọi: ' + (total - rem) + ' bạn';
+  const info = document.getElementById('classInfo');
+  if (info) info.textContent = cls ? (cls.name + ' • Còn lại: ' + rem + '/' + total) : 'Chưa có lớp nào';
+}
+function selectClass(id) {
+  if (!classesData.classes.some(c => c.id === id)) return;
+  classesData.activeClassId = id;
+  saveClasses();
+  buildCards();
+  refreshClassSelect();
+}
+function renderEffectButtons() {
+  document.getElementById('effectBar').innerHTML = EFFECTS.map(e =>
+    '<button class="fx-btn' + (e.id === effect ? ' active' : '') + '" onclick="setEffect(\'' + e.id + '\')">' + e.label + '</button>').join('');
+}
+function renderThemeButtons() {
+  document.getElementById('themeBar').innerHTML = THEMES.map(t =>
+    '<button class="th-btn' + (t.id === theme ? ' active' : '') + '" onclick="setTheme(\'' + t.id + '\')">' + t.name + '</button>').join('');
+}
+function setEffect(id) {
+  effect = id;
+  renderEffectButtons();
+}
+function setTheme(id) {
+  theme = id;
+  renderThemeButtons();
+  applyTheme();
+}
+function applyTheme() {
+  const t = THEMES.find(t => t.id === theme) || THEMES[0];
+  document.getElementById('stage').style.background = t.bg;
+}
+function toggleSound() {
+  soundOn = !soundOn;
+  document.getElementById('soundBtn').textContent = soundOn ? '🔊' : '🔇';
+}
+
+// ============ THE SAN KHAU ============
+function buildCards() {
+  const stage = document.getElementById('stage');
+  stage.innerHTML = '';
+  cards = [];
+  setHighlight(-1);
+  const cls = getActiveClass();
+  if (!cls || !cls.students.length) {
+    stage.innerHTML = '<div class="stage-empty">Chưa có dữ liệu.</div>';
+    updateCounters();
+    return;
+  }
+  const called = new Set(getCalled(cls.id));
+  const W = stage.clientWidth || 800, H = stage.clientHeight || 520;
+  cls.students.forEach((name, i) => {
+    const el = document.createElement('div');
+    el.className = 'fly-card' + (called.has(name) ? ' called' : '');
+    const pal = PALETTE[i % PALETTE.length];
+    el.innerHTML = '<div class="avatar" style="border-color:' + pal.border + ';background:' + pal.bg + '">'
+      + '<div class="hair" style="background:' + pal.hair + '"></div>'
+      + '<div class="eyes"><span></span><span></span></div>'
+      + '<div class="smile"></div></div>'
+      + '<div class="card-name">' + esc(name) + '</div>';
+    stage.appendChild(el);
+    cards.push({ name, colorIdx: i % PALETTE.length, called: called.has(name),
+      x: Math.random() * (W - 90) + 5, y: Math.random() * (H - 80) + 5,
+      angle: Math.random() * Math.PI * 2, speed: 1.5 + Math.random() * 1.5, el });
+  });
+  updateCounters();
+}
+function setHighlight(idx) {
+  if (highlightIdx >= 0 && cards[highlightIdx]) cards[highlightIdx].el.classList.remove('highlight');
+  highlightIdx = idx;
+  if (idx >= 0 && cards[idx]) cards[idx].el.classList.add('highlight');
+}
+function animate() {
+  animTime += 0.03;
+  const stage = document.getElementById('stage');
+  const W = stage.clientWidth || 800, H = stage.clientHeight || 520;
+  const cx = W / 2, cy = H / 2, CW = 84, CH = 78, HX = CW / 2, HY = CH / 2;
+  const n = Math.max(1, cards.length);
+  cards.forEach((c, o) => {
+    if (spinning) {
+      const ang = animTime * 6 + Math.PI * 2 * o / n;
+      const rad = Math.max(40, W / 3.5 * Math.sin(animTime * 1.5) + 80);
+      c.x = cx + Math.cos(ang) * rad - HX;
+      c.y = cy + Math.sin(ang) * rad - HY;
+    } else if (effect === 'chaotic') {
+      c.x += Math.cos(c.angle) * c.speed;
+      c.y += Math.sin(c.angle) * c.speed;
+      if (c.x <= 10 || c.x >= W - CW) c.angle = Math.PI - c.angle;
+      if (c.y <= 10 || c.y >= H - CH) c.angle = -c.angle;
+    } else if (effect === 'spiral') {
+      const rad = 40 + (o * 25 + animTime * 40) % (Math.min(W, H) / 2.2);
+      const ang = animTime * 1.5 + Math.PI * 2 * o / n;
+      c.x = cx + Math.cos(ang) * rad - HX;
+      c.y = cy + Math.sin(ang) * rad - HY;
+    } else if (effect === 'planet') {
+      const rad = 70 + (o % 4) * 45;
+      const ang = animTime * (0.8 + (o % 3) * 0.4) + o * Math.PI / 3;
+      c.x = cx + Math.cos(ang) * rad - HX;
+      c.y = cy + rad * 0.6 * Math.sin(ang) - HY;
+    } else if (effect === 'wave') {
+      c.x = (o * 65 + animTime * 80) % (W - CW);
+      c.y = cy + Math.sin(animTime * 3 + o) * (H / 3.2) - HY;
+    } else if (effect === 'eight') {
+      const rad = Math.min(W, H) / 2.5;
+      const ang = animTime * 1.2 + Math.PI * 2 * o / n;
+      c.x = cx + Math.sin(ang) * rad - HX;
+      c.y = cy + Math.sin(ang) * Math.cos(ang) * rad - HY;
+    } else if (effect === 'pendulum') {
+      const dx = Math.sin(animTime * 2 + o * 0.4) * (W / 2.6);
+      c.x = cx + dx - HX;
+      c.y = 80 + Math.abs(dx) * 0.4 + (o % 3) * 40;
+    } else if (effect === 'fire') {
+      c.y -= c.speed * 1.8;
+      c.x += Math.sin(animTime * 4 + o) * 3;
+      if (c.y < -30) { c.y = H - 20; c.x = Math.random() * (W - CW); }
+    } else if (effect === 'vortex') {
+      const rad = Math.max(30, W / 2.5 * Math.abs(Math.sin(animTime * 0.6 + o * 0.3)));
+      const ang = animTime * 2.5 + o;
+      c.x = cx + Math.cos(ang) * rad - HX;
+      c.y = cy + Math.sin(ang) * rad - HY;
+    }
+    c.x = Math.max(-20, Math.min(W, c.x));
+    c.y = Math.max(-20, Math.min(H, c.y));
+    c.el.style.transform = 'translate(' + c.x + 'px, ' + c.y + 'px)' + (c.called ? ' scale(0.75)' : '');
+  });
+  rafId = requestAnimationFrame(animate);
+}
+function renderGame() {
+  cancelAnimationFrame(rafId);
+  refreshClassSelect();
+  renderEffectButtons();
+  renderThemeButtons();
+  applyTheme();
+  buildCards();
+  cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(animate);
+}
+
+// ============ QUAY ============
+function startSpin() {
+  if (spinning) return;
+  const cls = getActiveClass();
+  if (!cls || !cls.students.length) { showToast('Chưa có danh sách!', 'error'); return; }
+  let pool = getEligible();
+  if (!pool.length) {
+    if (!confirm('Tất cả học sinh lớp này đã được gọi! Bắt đầu vòng mới nhé?')) return;
+    classesData.called[cls.id] = [];
+    saveClasses();
+    buildCards();
+    pool = getEligible();
+  }
+  spinning = true;
+  setHighlight(-1);
+  const btn = document.getElementById('spinBtn');
+  btn.disabled = true;
+  btn.textContent = 'Đang quay...';
+  ensureAudio();
+  const duration = Math.max(1, spinSecs) * 1000;
+  let elapsed = 0, interval = 80;
+  const eligibleIdx = () => cards.map((c, i) => i).filter(i => !cards[i].called);
+  const tick = () => {
+    const idxs = eligibleIdx();
+    if (!idxs.length) { finishSpin(-1); return; }
+    const pick = idxs[Math.floor(Math.random() * idxs.length)];
+    setHighlight(pick);
+    beepScan();
+    elapsed += interval;
+    if (elapsed >= duration) { finishSpin(pick); return; }
+    interval = Math.min(420, interval * 1.18);
+    spinTimer = setTimeout(tick, interval);
+  };
+  spinTimer = setTimeout(tick, interval);
+}
+function finishSpin(winIdx) {
+  spinning = false;
+  const btn = document.getElementById('spinBtn');
+  btn.disabled = false;
+  btn.textContent = '✦ QUAY NGƯỜI TIẾP THEO ✦';
+  if (winIdx < 0 || !cards[winIdx] || cards[winIdx].called) {
+    const idxs = cards.map((c, i) => i).filter(i => !cards[i].called);
+    winIdx = idxs.length ? idxs[Math.floor(Math.random() * idxs.length)] : -1;
+  }
+  if (winIdx < 0) { setHighlight(-1); return; }
+  const card = cards[winIdx];
+  setHighlight(-1);
+  card.el.classList.add('winner');
+  card.called = true;
+  card.el.classList.add('called');
+  const cls = getActiveClass();
+  const arr = getCalled(cls.id);
+  if (!arr.includes(card.name)) arr.push(card.name);
+  classesData.called[cls.id] = arr;
+  saveClasses();
+  updateCounters();
+  beepVictory();
+  showWinnerModal(card, cls);
+}
+function resetCallRound() {
+  const cls = getActiveClass();
+  if (!cls) return;
+  if (!(classesData.called[cls.id] || []).length) { showToast('Chưa có học sinh nào được gọi trong vòng này.'); return; }
+  classesData.called[cls.id] = [];
+  saveClasses();
+  buildCards();
+  showToast('Đã làm mới vòng gọi cho lớp ' + cls.name + '.');
+}
+
+// ============ MODAL NGUOI THANG + PHAO GIAY ============
+function showWinnerModal(card, cls) {
+  const pal = PALETTE[card.colorIdx % PALETTE.length];
+  const layer = document.getElementById('modalLayer');
+  layer.innerHTML = '<div class="modal-backdrop">'
+    + '<canvas id="confettiCanvas"></canvas>'
+    + '<div class="winner-card">'
+    + '<button class="modal-x" onclick="closeWinnerModal()">✕</button>'
+    + '<div class="winner-avatar" style="border-color:' + pal.border + ';background:' + pal.bg + '">'
+    + '<div class="hair" style="background:' + pal.hair + '"></div>'
+    + '<div class="eyes"><span></span><span></span></div>'
+    + '<div class="smile"></div></div>'
+    + '<div class="winner-label">HỌC SINH ĐƯỢC CHỌN</div>'
+    + '<div class="winner-name">' + esc(card.name) + '</div>'
+    + '<div class="winner-class">' + esc(cls.name) + '</div>'
+    + '<div class="winner-invite">🎉 Mời bạn lên bảng!</div>'
+    + '<button class="btn-go" onclick="closeWinnerModal()">Gọi tiếp</button>'
+    + '</div></div>';
+  layer.style.display = 'block';
+  startConfetti();
+}
+function closeWinnerModal() {
+  stopConfetti();
+  const layer = document.getElementById('modalLayer');
+  layer.innerHTML = '';
+  layer.style.display = 'none';
+}
+let confettiRAF = null;
+function startConfetti() {
+  const canvas = document.getElementById('confettiCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const parent = canvas.parentElement;
+  canvas.width = parent.clientWidth || 800;
+  canvas.height = parent.clientHeight || 600;
+  const colors = ['#f43f5e', '#ec4899', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
+  const parts = [];
+  for (let i = 0; i < 150; i++) parts.push({
+    x: canvas.width / 2, y: canvas.height / 2 + 50, r: Math.random() * 6 + 3,
+    dx: Math.random() * 16 - 8, dy: Math.random() * -15 - 8,
+    color: colors[i % colors.length], tilt: Math.random() * 20 - 10,
+    tiltAngle: 0, tiltInc: Math.random() * 0.07 + 0.05
+  });
+  const render = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let active = 0;
+    parts.forEach(p => {
+      if (p.y < canvas.height) active++;
+      p.tiltAngle += p.tiltInc;
+      p.y += (Math.cos(p.tiltAngle) + p.dy + p.r / 2) / 2;
+      p.x += Math.sin(p.tiltAngle) * 2 + p.dx;
+      p.dy += 0.25;
+      ctx.beginPath();
+      ctx.lineWidth = p.r;
+      ctx.strokeStyle = p.color;
+      ctx.moveTo(p.x + p.tilt + p.r, p.y);
+      ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r);
+      ctx.stroke();
+    });
+    if (active > 0) confettiRAF = requestAnimationFrame(render);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  };
+  render();
+}
+function stopConfetti() {
+  if (confettiRAF) cancelAnimationFrame(confettiRAF);
+  confettiRAF = null;
+}
+
+// ============ AM THANH TICH / THANG (WebAudio, khong can file) ============
+let audioCtx = null;
+function ensureAudio() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state !== 'running') audioCtx.resume();
+  } catch (e) {}
+}
+function beepScan() {
+  if (!soundOn || !audioCtx) return;
+  try {
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(300 + Math.random() * 400, audioCtx.currentTime);
+    g.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    g.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime + 0.08);
+  } catch (e) {}
+}
+function beepVictory() {
+  if (!soundOn || !audioCtx) return;
+  try {
+    [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      const t = audioCtx.currentTime + i * 0.12;
+      o.type = 'triangle';
+      o.frequency.setValueAtTime(f, t);
+      g.gain.setValueAtTime(0.12, t);
+      g.gain.linearRampToValueAtTime(0.001, t + 0.4);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(t); o.stop(t + 0.4);
+    });
+  } catch (e) {}
+}
+
+// ============ QUAN LY LOP (khoi lop + Luu tat ca) ============
+function blockHtml(cls) {
+  return '<div class="class-block" data-id="' + esc(cls.id || '') + '">'
+    + '<div class="row">'
+    + '<input class="block-name" placeholder="Tên lớp (vd: 12A1)" value="' + esc(cls.name) + '">'
+    + '<button class="block-del" onclick="removeClassBlock(this)" title="Xóa khối này">✕</button>'
+    + '</div>'
+    + '<textarea class="block-names" rows="4" placeholder="Mỗi dòng một tên học sinh (có thể dán dạng &quot;01, Nguyễn Văn An&quot;)">' + esc(cls.students.join('\n')) + '</textarea>'
+    + '</div>';
+}
+function openClassManager() {
+  document.getElementById('classBlocks').innerHTML = classesData.classes.map(blockHtml).join('');
+  document.getElementById('classManagerModal').style.display = 'flex';
+}
+function closeClassManager() {
+  document.getElementById('classManagerModal').style.display = 'none';
+}
+function addClassBlock() {
+  const list = document.getElementById('classBlocks');
+  const tmp = document.createElement('div');
+  tmp.innerHTML = blockHtml({ id: '', name: '', students: [] });
+  list.appendChild(tmp.firstElementChild);
+  list.lastElementChild.querySelector('.block-name').focus();
+}
+function removeClassBlock(btn) {
+  const block = btn.closest('.class-block');
+  if (!block) return;
+  block.remove();
+  const list = document.getElementById('classBlocks');
+  if (!list.querySelector('.class-block')) addClassBlock();
+}
+function fillSampleBlock() {
+  const blocks = [...document.querySelectorAll('#classBlocks .class-block')];
+  let target = blocks.find(b => !b.querySelector('.block-names').value.trim());
+  if (!target) { addClassBlock(); target = document.querySelector('#classBlocks .class-block:last-child'); }
+  target.querySelector('.block-names').value = SAMPLE_NAMES.join('\n');
+  const nameInput = target.querySelector('.block-name');
+  if (!nameInput.value.trim()) nameInput.value = 'Lớp mẫu';
+}
+function saveAllClasses() {
+  const blocks = [...document.querySelectorAll('#classBlocks .class-block')].map(b => ({
+    id: b.dataset.id || '',
+    name: b.querySelector('.block-name').value.trim(),
+    students: parseNames(b.querySelector('.block-names').value)
+  }));
+  const res = resolveSaveAll(blocks);
+  if (res.error) { showToast(res.error, 'error'); return; }
+  const oldCalled = classesData.called || {};
+  const newCalled = {};
+  res.classes.forEach(c => {
+    const kept = (oldCalled[c.id] || []).filter(n => c.students.includes(n));
+    if (kept.length) newCalled[c.id] = kept;
+  });
+  const oldActive = getActiveClass();
+  classesData = {
+    classes: res.classes,
+    activeClassId: (oldActive && res.classes.some(c => c.id === oldActive.id)) ? oldActive.id : res.classes[0].id,
+    called: newCalled
+  };
+  saveClasses();
+  closeClassManager();
+  const total = res.classes.reduce((s, c) => s + c.students.length, 0);
+  showToast('Đã lưu ' + res.classes.length + ' lớp, tổng ' + total + ' học sinh.');
+  renderGame();
+}
+
+// ============ NHAC NEN TU MAY (luu IndexedDB tren may nay) ============
+let musicAudio = null, musicOn = false, musicName = '';
+function musicDB() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open('vongxoay_tinhyeu_music_db', 1);
+    r.onupgradeneeded = () => { if (!r.result.objectStoreNames.contains('music')) r.result.createObjectStore('music'); };
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+}
+async function musicSave(blob, name) {
+  const db = await musicDB();
+  await new Promise((res, rej) => {
+    const tx = db.transaction('music', 'readwrite');
+    tx.objectStore('music').put({ blob, name }, 'bgm');
+    tx.oncomplete = res; tx.onerror = () => rej(tx.error);
+  });
+}
+async function musicLoad() {
+  const db = await musicDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction('music', 'readonly');
+    const q = tx.objectStore('music').get('bgm');
+    q.onsuccess = () => res(q.result || null);
+    q.onerror = () => rej(q.error);
+  });
+}
+function refreshMusicUI() {
+  const tgl = document.getElementById('musicToggle');
+  const clr = document.getElementById('musicClear');
+  if (!tgl) return;
+  const has = !!musicAudio;
+  tgl.disabled = !has;
+  clr.disabled = !has;
+  tgl.textContent = musicOn ? '⏸ Tắt nhạc' : '▶ Bật nhạc';
+  tgl.title = has ? ('Nhạc nền: ' + musicName + ' (bấm để ' + (musicOn ? 'tắt' : 'bật') + ')')
+                  : 'Chưa có nhạc — bấm Tải nhạc để chọn file trước';
+}
+async function restoreMusic() {
+  try {
+    const rec = await musicLoad();
+    if (!rec) { refreshMusicUI(); return; }
+    musicAudio = new Audio(URL.createObjectURL(rec.blob));
+    musicAudio.loop = true;
+    musicName = rec.name || 'nhạc đã lưu';
+    musicOn = false;
+    refreshMusicUI();
+  } catch (e) { refreshMusicUI(); }
+}
+async function toggleMusic() {
+  if (!musicAudio) { showToast('Chưa có nhạc — bấm Tải nhạc để chọn file trước.', 'error'); return; }
+  try {
+    if (musicOn) { musicAudio.pause(); musicOn = false; }
+    else { await musicAudio.play(); musicOn = true; }
+  } catch (e) { showToast('Không phát được nhạc.', 'error'); }
+  refreshMusicUI();
+}
+async function clearMusic() {
+  try {
+    const db = await musicDB();
+    await new Promise((res, rej) => {
+      const tx = db.transaction('music', 'readwrite');
+      tx.objectStore('music').delete('bgm');
+      tx.oncomplete = res; tx.onerror = () => rej(tx.error);
+    });
+  } catch (e) {}
+  if (musicAudio) { musicAudio.pause(); musicAudio = null; }
+  musicOn = false; musicName = '';
+  refreshMusicUI();
+  showToast('Đã xóa nhạc nền.');
+}
+document.getElementById('musicFile').addEventListener('change', async (e) => {
+  const f = e.target.files && e.target.files[0];
+  e.target.value = '';
+  if (!f) return;
+  try {
+    await musicSave(f, f.name);
+    if (musicAudio) musicAudio.pause();
+    musicAudio = new Audio(URL.createObjectURL(f));
+    musicAudio.loop = true;
+    musicName = f.name;
+    await musicAudio.play();
+    musicOn = true;
+    refreshMusicUI();
+    showToast('Đang phát nhạc nền: ' + f.name);
+  } catch (err) { showToast('Không lưu/phát được nhạc.', 'error'); }
+});
+
+// ============ KHOI DONG ============
+loadClasses();
+renderGame();
+restoreMusic();
+</script>
+
+<!-- Navigation back to Gọi Tên Ngôi Sao -->
+<style id="nav-star-style">
+  .hub-back-btn {
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 999999;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(11, 18, 48, 0.88);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #ffc23d;
+    border: 1.5px solid rgba(255, 194, 61, 0.45);
+    padding: 7px 16px;
+    border-radius: 999px;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-size: 13.5px;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .hub-back-btn:hover {
+    background: #ffc23d;
+    color: #0b1230;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 194, 61, 0.5);
+  }
+</style>
+<script id="nav-star-script">
+(function() {
+  // Ẩn nút quay về nếu game đang được nhúng trong khung iframe của Gọi Tên Ngôi Sao
+  if (window.self !== window.top) return;
+  
+  window.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('hubBackBtn')) return;
+    var a = document.createElement('a');
+    a.id = 'hubBackBtn';
+    a.className = 'hub-back-btn';
+    a.href = 'index.html';
+    a.title = 'Quay về trang chính Gọi Tên Ngôi Sao';
+    a.innerHTML = '<span style="font-size:16px;">⭐</span><span>Gọi Tên Ngôi Sao</span>';
+    document.body.appendChild(a);
+  });
+})();
+</script>
+
+</body>
+</html>

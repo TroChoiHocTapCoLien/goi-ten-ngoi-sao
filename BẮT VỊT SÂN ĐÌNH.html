@@ -1,0 +1,2812 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Bịt Mắt Bắt Vịt – Sân Đình Tri Thức (Bản Độc Lập Mọi Máy Tính)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #24190F;
+      color: #1E293B;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    #game-container {
+      position: relative;
+      width: min(100vw, calc(100vh * 16 / 9), 1280px);
+      height: min(56.25vw, calc(100vh - 8px), 720px);
+      aspect-ratio: 16 / 9;
+      background: #F6F1E6;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(120,53,15,0.3);
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: crosshair;
+    }
+    /* Top Bar */
+    .top-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 48px;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 10;
+    }
+    .brand {
+      color: #9A3412;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .stats {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #475569;
+    }
+    select, input, textarea {
+      font-family: inherit;
+    }
+    /* Bottom Controls */
+    .bottom-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 54px;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      z-index: 10;
+    }
+    .btn {
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+    }
+    .btn:hover { background: #F8FAFC; border-color: #94A3B8; }
+    .btn:active { transform: scale(0.96); }
+    .btn-primary { background: #D97706; border-color: #B45309; color: #FFFFFF; }
+    .btn-primary:hover { background: #B45309; }
+    .btn-danger { background: #FEE2E2; border-color: #FCA5A5; color: #991B1B; }
+    .btn-danger:hover { background: #FCA5A5; }
+    .btn-success { background: #ECFDF5; border-color: #A7F3D0; color: #065F46; }
+
+    /* Result Modal */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 30;
+      animation: fadeIn 0.25s ease-out;
+    }
+    .modal-card {
+      background: #FFFFFF;
+      width: 90%;
+      max-width: 520px;
+      border-radius: 20px;
+      border: 3px solid #D97706;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      padding: 24px;
+      text-align: center;
+      position: relative;
+    }
+    .badge-tag {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    .student-name-box {
+      font-size: 32px;
+      font-weight: 900;
+      color: #1E293B;
+      padding: 12px;
+      background: #FFFBEB;
+      border: 2px dashed #F59E0B;
+      border-radius: 12px;
+      margin: 14px 0;
+      letter-spacing: -0.5px;
+    }
+    .result-note {
+      font-size: 13px;
+      color: #64748B;
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+
+    /* Settings Drawer */
+    .drawer {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 400px;
+      max-width: 90vw;
+      height: 100%;
+      background: #FFFFFF;
+      box-shadow: -10px 0 30px rgba(0,0,0,0.3);
+      z-index: 25;
+      display: none;
+      flex-direction: column;
+      padding: 18px;
+      overflow-y: auto;
+    }
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #E2E8F0;
+    }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: #334155; }
+    textarea, input[type="text"], select {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid #CBD5E1;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  </style>
+
+<!-- Đồng bộ cơ chế & màu sắc vũ trụ với Gọi Tên Ngôi Sao -->
+<style id="star-app-sync-theme">
+  :root {
+    --sky: #0b1230 !important;
+    --sky2: #151f4a !important;
+    --panel: #121a3d !important;
+    --panel2: #1a2452 !important;
+    --line: #2a3670 !important;
+    --ink: #eef2ff !important;
+    --muted: #a3add6 !important;
+    --star: #ffc23d !important;
+    --star2: #ffe08a !important;
+  }
+  body {
+    background: radial-gradient(1200px 700px at 70% -10%, #2a2f7a 0%, transparent 60%),
+                radial-gradient(900px 600px at -10% 110%, #3b1d5e 0%, transparent 55%),
+                #0b1230 !important;
+    color: #eef2ff !important;
+    font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif !important;
+  }
+  .modal, .dialog, .popup, .card, [class*="panel"], [class*="modal-content"] {
+    background: #121a3d !important;
+    color: #eef2ff !important;
+    border-color: #2a3670 !important;
+  }
+  button, .btn {
+    font-family: 'Be Vietnam Pro', sans-serif !important;
+  }
+</style>
+<script id="star-app-sync-script">
+(function(){
+  // Tự động đồng bộ danh sách học sinh từ app chính "Gọi Tên Ngôi Sao"
+  try {
+    var raw = localStorage.getItem('goi-ten-ngoi-sao-v1');
+    if (raw) {
+      var data = JSON.parse(raw);
+      var curCls = (data.classes || []).find(function(c){ return c.id === data.cur; }) || (data.classes || [])[0];
+      if (curCls && curCls.students && curCls.students.length > 0) {
+        window.STAR_APP_STUDENTS = curCls.students.slice();
+        console.log('[Gọi Tên Ngôi Sao] Đã đồng bộ lớp:', curCls.name, '(' + curCls.students.length + ' bạn)');
+      }
+    }
+  } catch(e) {}
+})();
+</script>
+
+</head>
+<body>
+
+<div id="game-container">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="brand" onclick="goToHome()" title="Về trạng thái sẵn sàng">
+      <span>🦆</span>
+      <span>Bịt Mắt Bắt Vịt – Sân Đình Tri Thức</span>
+    </div>
+
+    <div class="stats">
+      <div style="background:#FEF3C7; padding:3px 8px; border-radius:6px; border:1px solid #FDE68A; display:flex; align-items:center; gap:4px;">
+        <span style="color:#92400E; font-weight:700;">Lớp:</span>
+        <select id="top-class-select" onchange="onClassSelected(this.value)" style="border:none; background:transparent; font-weight:800; color:#78350F; cursor:pointer; font-size:12px;"></select>
+      </div>
+      <div>Còn lại: <b id="top-remaining-count" style="color:#2563EB;">12</b> em</div>
+      <div id="top-timer-box" style="display:none; color:#C2410C; font-weight:bold;">⏱ <span id="top-timer">30s</span></div>
+    </div>
+  </div>
+
+  <!-- Main Canvas -->
+  <canvas id="game-canvas" width="1280" height="720"></canvas>
+
+  <!-- Bottom Bar -->
+  <div class="bottom-bar">
+    <div style="display:flex; gap:6px;">
+      <button class="btn btn-primary" id="btn-start" onclick="onStartClicked()">▶ Bắt Đầu Lượt</button>
+      <button class="btn" id="btn-pause" onclick="onPauseClicked()" style="display:none;">⏸ Tạm Dừng</button>
+      <button class="btn btn-danger" id="btn-stop" onclick="onStopClicked()" style="display:none;">⏹ Dừng</button>
+    </div>
+
+    <div style="display:flex; gap:6px;">
+      <button class="btn" id="btn-bgm" onclick="toggleBgmPlay()" style="display:none;">🎵 Bật Nhạc</button>
+      <button class="btn" id="btn-mode-toggle" onclick="togglePlayMode()" title="Chuyển chế độ: Tự động hoặc Cả lớp dẫn đường">🎮 Tự Động</button>
+      <button class="btn" id="btn-sound" onclick="toggleSound()">🔊 Hiệu Ứng</button>
+      <button class="btn" id="btn-fullscreen" onclick="toggleFullscreen()" title="Toàn màn hình chiếu máy chiếu / laptop (Phím F)">⛶ Toàn Màn Hình</button>
+      <button class="btn btn-success" onclick="toggleDrawer()">⚙ Quản Lý Lớp & Nhạc</button>
+    </div>
+  </div>
+
+  <!-- Settings Drawer -->
+  <div class="drawer" id="settings-drawer">
+    <div class="drawer-header">
+      <h3 style="font-size:15px; font-weight:800; color:#0F172A;">Quản Lý Lớp & Cài Đặt</h3>
+      <button class="btn" onclick="toggleDrawer()">✕ Đóng (Esc)</button>
+    </div>
+
+    <!-- Multi-Class Section -->
+    <div class="form-group" style="background:#FFFBEB; padding:10px; border-radius:8px; border:1px solid #FDE68A;">
+      <label style="color:#78350F; font-size:13px; font-weight:800;">1. Chọn & Quản Lý Nhiều Lớp Học</label>
+      <div style="display:flex; gap:6px; margin-bottom:8px;">
+        <select id="drawer-class-select" onchange="onClassSelected(this.value)"></select>
+        <button class="btn btn-danger" onclick="deleteCurrentClass()" style="padding:4px 8px; font-size:11px;" title="Xóa lớp hiện tại">Xóa Lớp</button>
+      </div>
+      <div style="display:flex; gap:6px;">
+        <input type="text" id="new-class-input" placeholder="Tên lớp mới (ví dụ: 10A2)...">
+        <button class="btn btn-primary" onclick="addNewClass()" style="white-space:nowrap; font-size:11px;">+ Thêm</button>
+      </div>
+    </div>
+
+    <!-- Custom BGM Upload Section -->
+    <div class="form-group" style="background:#ECFDF5; padding:10px; border-radius:8px; border:1px solid #A7F3D0;">
+      <label style="color:#065F46; font-size:13px; font-weight:800;">2. Nhạc Nền Tùy Chọn (Từ Máy Tính)</label>
+      <p style="font-size:11px; color:#047857; margin-bottom:6px;">Chọn bài nhạc mp3, wav hoặc ogg từ laptop để phát không khí lễ hội vui tươi:</p>
+      <input type="file" id="bgm-file-input" accept="audio/*" onchange="handleBgmUpload(event)" style="font-size:11px; margin-bottom:6px;">
+      <div id="bgm-player-box" style="display:none; margin-top:6px;">
+        <div style="font-size:11px; font-weight:bold; color:#064E3B; margin-bottom:4px;" id="bgm-track-title">Chưa nạp nhạc</div>
+        <div style="display:flex; gap:6px; align-items:center;">
+          <button class="btn" id="drawer-bgm-play-btn" onclick="toggleBgmPlay()" style="font-size:11px; padding:4px 10px;">▶ Phát Nhạc</button>
+          <label style="font-size:11px; color:#475569;">Âm lượng: <input type="range" id="bgm-vol" min="0" max="1" step="0.1" value="0.6" onchange="setBgmVol(this.value)" style="width:70px;"></label>
+          <button class="btn btn-danger" onclick="removeBgm()" style="font-size:10px; padding:3px 6px;">Hủy bài</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Roster editor -->
+    <div class="form-group">
+      <label>3. Danh Sách Học Sinh Lớp Này (Mỗi em một dòng):</label>
+      <textarea id="cfg-students-text" rows="7" placeholder="Nhập tên học sinh..."></textarea>
+      <button class="btn btn-primary" onclick="updateStudentRoster()" style="width:100%; margin-top:6px; justify-content:center;">💾 Lưu Danh Sách Học Sinh</button>
+    </div>
+
+    <!-- Chase duration -->
+    <div class="form-group">
+      <label>Thời Gian Rượt Đuổi (giây):</label>
+      <input type="number" id="cfg-duration" min="5" max="90" value="25" onchange="updateSettings()">
+    </div>
+
+    <!-- Teacher Address -->
+    <div class="form-group">
+      <label>Cách Vịt Xưng Hô Khi Bị Túm Chân:</label>
+      <select id="cfg-address" onchange="updateSettings()">
+        <option value="Thầy">Thầy ("Xin thầy tha cho bạn em!")</option>
+        <option value="Cô">Cô ("Xin cô tha cho bạn em!")</option>
+      </select>
+    </div>
+
+    <!-- Options -->
+    <div class="form-group" style="display:flex; align-items:center; gap:8px;">
+      <input type="checkbox" id="cfg-avoid-repeat" checked onchange="updateSettings()" style="width:auto;">
+      <label for="cfg-avoid-repeat" style="margin:0; font-size:12px; cursor:pointer;">Không gọi lặp lại bạn đã được gọi</label>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+      <button class="btn" onclick="resetCallHistory()" style="width:100%; justify-content:center;">🔄 Làm Mới Vòng Gọi Tên Lớp Này</button>
+      <button class="btn btn-success" onclick="exportUpdatedHTML()" style="width:100%; justify-content:center;" title="Tải file HTML mới chứa toàn bộ các lớp bạn vừa sửa">📥 Tải Bản HTML Kèm Dữ Liệu Mới</button>
+      <button class="btn" onclick="exportDataJSON()" style="width:100%; justify-content:center;">💾 Sao Lưu Dữ Liệu (JSON)</button>
+    </div>
+
+    <!-- OS Compatibility note -->
+    <div style="margin-top:14px; padding:10px; background:#F8FAFC; border-radius:8px; border:1px solid #E2E8F0; font-size:11px; color:#64748B; line-height:1.4;">
+      <b>💻 Tương thích 100% mọi hệ điều hành:</b><br>
+      • <b>Windows:</b> Mở trực tiếp bằng Edge, Chrome, Cốc Cốc, Firefox.<br>
+      • <b>macOS:</b> Mở trực tiếp bằng Safari hoặc Chrome.<br>
+      • <b>Linux / ChromeOS:</b> Mở bằng Firefox hoặc Chrome.<br>
+      • Chạy hoàn toàn ngoại tuyến, không cần internet.
+    </div>
+  </div>
+
+  <!-- Result Modal -->
+  <div class="modal-overlay" id="result-modal">
+    <div class="modal-card">
+      <div id="result-tag" class="badge-tag" style="background:#FEE2E2; color:#991B1B;">🦸‍♂️ BẮT ĐƯỢC CHÚ VỊT TÚM CHÂN CỨU BẠN!</div>
+      <h2 id="result-title" style="font-size:18px; font-weight:800; color:#DC2626; margin-bottom:4px;">HIỆP SĨ TÚM CHÂN BỊ BẮT THAY!</h2>
+      <div id="result-student-name" class="student-name-box">Học Sinh</div>
+      <p id="result-desc" class="result-note">Bạn đã dũng cảm túm chân xin tha cho bạn. Bạn ấy may mắn rơi xuống chạy thoát: <i>"Ôi may quá, cảm ơn bạn nhé!"</i> — Còn bạn túm chân thì bị bắt lên bảng!</p>
+      <button class="btn btn-primary" onclick="closeResultModal()" style="font-size:14px; padding:9px 24px; border-radius:10px;">Tiếp Tục Lượt Mới (Phím Cách)</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Canvas & Context Setup
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+const container = document.getElementById('game-container');
+
+// Audio Synthesizer (Web Audio API - No external files needed)
+class AudioEngine {
+  constructor() {
+    this.ctx = null;
+    this.muted = false;
+    this.bgmAudio = new Audio();
+    this.bgmAudio.loop = true;
+    this.bgmPlaying = false;
+    this.bgmTitle = '';
+  }
+  init() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) this.ctx = new AudioCtx();
+    }
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume().catch(()=>{});
+    }
+  }
+  playQuack() {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      const baseFreq = 420 + Math.random() * 80;
+      osc.frequency.setValueAtTime(baseFreq, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.65, this.ctx.currentTime + 0.16);
+      gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.18);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.2);
+    } catch(e){}
+  }
+  playWhistle() {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1400, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(2200, this.ctx.currentTime + 0.12);
+      osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.25);
+      gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.28);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.3);
+    } catch(e){}
+  }
+  playCatch() {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(180, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(450, this.ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.28);
+    } catch(e){}
+  }
+  playFanfare() {
+    if (this.muted) return;
+    this.init();
+    if (!this.ctx) return;
+    try {
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach((freq, i) => {
+        const o = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        o.type = 'triangle';
+        o.frequency.value = freq;
+        const bt = this.ctx.currentTime + i * 0.12;
+        g.gain.setValueAtTime(0.35, bt);
+        g.gain.exponentialRampToValueAtTime(0.001, bt + 0.3);
+        o.connect(g); g.connect(this.ctx.destination);
+        o.start(bt); o.stop(bt + 0.32);
+      });
+    } catch(e){}
+  }
+}
+const audio = new AudioEngine();
+
+// Multi-Class Data Storage
+let classes = [
+  {
+    "id": "cls-12a1",
+    "name": "12A1",
+    "students": [
+      {
+        "id": "st-01",
+        "name": "Lan Phương",
+        "called": false
+      },
+      {
+        "id": "st-02",
+        "name": "Ngọc Diệp",
+        "called": false
+      },
+      {
+        "id": "st-03",
+        "name": "Hoàng Duy",
+        "called": false
+      },
+      {
+        "id": "st-04",
+        "name": "Gia Bảo",
+        "called": false
+      },
+      {
+        "id": "st-05",
+        "name": "Nhật Minh",
+        "called": true
+      },
+      {
+        "id": "st-06",
+        "name": "Đăng Quang",
+        "called": false
+      },
+      {
+        "id": "st-07",
+        "name": "Phương Thảo",
+        "called": false
+      },
+      {
+        "id": "st-08",
+        "name": "Thanh Mai",
+        "called": false
+      },
+      {
+        "id": "st-09",
+        "name": "Thu Trang",
+        "called": false
+      },
+      {
+        "id": "st-10",
+        "name": "Minh Tuấn",
+        "called": false
+      },
+      {
+        "id": "st-11",
+        "name": "Hải Đăng",
+        "called": false
+      },
+      {
+        "id": "st-12",
+        "name": "Khánh Linh",
+        "called": false
+      },
+      {
+        "id": "st-13",
+        "name": "Bảo Ngọc",
+        "called": false
+      },
+      {
+        "id": "st-14",
+        "name": "Anh Khoa",
+        "called": false
+      },
+      {
+        "id": "st-15",
+        "name": "Thảo Vy",
+        "called": false
+      },
+      {
+        "id": "st-16",
+        "name": "Đức Phong",
+        "called": false
+      }
+    ]
+  },
+  {
+    "id": "cls-11b2",
+    "name": "11B2",
+    "students": [
+      {
+        "id": "st-b1",
+        "name": "Quốc Anh",
+        "called": false
+      },
+      {
+        "id": "st-b2",
+        "name": "Mỹ Duyên",
+        "called": false
+      },
+      {
+        "id": "st-b3",
+        "name": "Tuấn Kiệt",
+        "called": false
+      },
+      {
+        "id": "st-b4",
+        "name": "Hồng Nhung",
+        "called": false
+      },
+      {
+        "id": "st-b5",
+        "name": "Văn Quyết",
+        "called": false
+      },
+      {
+        "id": "st-b6",
+        "name": "Thùy Chi",
+        "called": false
+      },
+      {
+        "id": "st-b7",
+        "name": "Thành Đạt",
+        "called": false
+      },
+      {
+        "id": "st-b8",
+        "name": "Diệu Linh",
+        "called": false
+      },
+      {
+        "id": "st-b9",
+        "name": "Trọng Hiếu",
+        "called": false
+      },
+      {
+        "id": "st-b10",
+        "name": "Quỳnh Nga",
+        "called": false
+      },
+      {
+        "id": "st-b11",
+        "name": "Bảo An",
+        "called": false
+      },
+      {
+        "id": "st-b12",
+        "name": "Thanh Tùng",
+        "called": false
+      }
+    ]
+  },
+  {
+    "id": "cls-10c3",
+    "name": "10C3",
+    "students": [
+      {
+        "id": "st-c1",
+        "name": "Kim Ngân",
+        "called": false
+      },
+      {
+        "id": "st-c2",
+        "name": "Huy Hoàng",
+        "called": false
+      },
+      {
+        "id": "st-c3",
+        "name": "Ánh Tuyết",
+        "called": true
+      },
+      {
+        "id": "st-c4",
+        "name": "Bình Minh",
+        "called": false
+      },
+      {
+        "id": "st-c5",
+        "name": "Tường Vy",
+        "called": false
+      },
+      {
+        "id": "st-c6",
+        "name": "Nam Phong",
+        "called": false
+      },
+      {
+        "id": "st-c7",
+        "name": "Yến Nhi",
+        "called": false
+      },
+      {
+        "id": "st-c8",
+        "name": "Đình Trọng",
+        "called": false
+      },
+      {
+        "id": "st-c9",
+        "name": "Cẩm Tú",
+        "called": false
+      },
+      {
+        "id": "st-c10",
+        "name": "Hữu Phước",
+        "called": false
+      }
+    ]
+  },
+  {
+    "id": "cls-1792549133664",
+    "name": "BỘ PHẬN",
+    "students": [
+      {
+        "id": "st-1792549153385",
+        "name": "CƠ SỞ 2",
+        "called": false
+      },
+      {
+        "id": "st-1792549157965",
+        "name": "HÀNH CHÍNH",
+        "called": false
+      },
+      {
+        "id": "st-1792549162782",
+        "name": "CHUYÊN MÔN",
+        "called": false
+      },
+      {
+        "id": "st-1792549170007",
+        "name": "TRUYỀN THÔNG",
+        "called": true
+      }
+    ]
+  }
+];
+// Load saved data if present in localStorage
+try {
+  const saved = localStorage.getItem('bit_mat_bat_vit_offline_classes');
+  if (saved) {
+    const p = JSON.parse(saved);
+    if (Array.isArray(p) && p.length > 0) classes = p;
+  }
+} catch(e){}
+
+if (window.STAR_APP_STUDENTS && window.STAR_APP_STUDENTS.length > 0) {
+  var syncedStudents = window.STAR_APP_STUDENTS.map(function(name, i){
+    return { id: 'st-star-' + (i+1), name: name, called: false };
+  });
+  classes.unshift({
+    id: 'cls-star',
+    name: 'Lớp từ Gọi Tên Ngôi Sao',
+    students: syncedStudents
+  });
+  activeClassId = 'cls-star';
+} else {
+  var activeClassId = classes[0].id;
+}
+function getActiveClass() {
+  return classes.find(c => c.id === activeClassId) || classes[0];
+}
+function saveClasses() {
+  try {
+    localStorage.setItem('bit_mat_bat_vit_offline_classes', JSON.stringify(classes));
+  } catch(e){}
+}
+
+let mode = 'auto'; // 'auto' or 'manual'
+let gameState = 'READY'; // READY, PLAYING, PAUSED, CARRYING, RESULT
+let chaseDuration = 25;
+let roundTimer = 0;
+let teacherAddress = 'Thầy';
+let avoidRepeat = true;
+
+// Arena specs matching 16:9 1280x720 2.5D perspective
+const ARENA = {
+  cx: 640,
+  cy: 400,
+  rx: 470,
+  ry: 220,
+  gateWidth: 140,
+  gateY: 605,
+  exitY: 690
+};
+
+// Particle Effects System
+let particles = [];
+function addParticle(x, y, type = 'dust', color = '#BA9868') {
+  particles.push({
+    x,
+    y,
+    type,
+    color,
+    size: type === 'dust' ? (2 + Math.random() * 4) : (type === 'sweat' ? 3.5 : 7),
+    life: 0.6 + Math.random() * 0.4,
+    maxLife: 1.0,
+    vx: (Math.random() - 0.5) * 35,
+    vy: (Math.random() - 0.5) * 20 - 8
+  });
+}
+
+// Entities
+let farmer = {
+  x: ARENA.cx,
+  y: ARENA.cy + 10,
+  vx: 0,
+  vy: 0,
+  dir: 1,
+  direction: 1,
+  walkCycle: 0,
+  ribbonWave: 0,
+  reachFactor: 1,
+  state: 'chase', // 'chase', 'lunge', 'miss', 'rescue_tug', 'caught_hug', 'carry'
+  caught: null,
+  initialCaught: null,
+  speech: '',
+  speechTimer: 0
+};
+
+let ducks = [];
+let targetDuck = null;
+
+// Dramatic rescue duck state
+let carryTimer = 0;
+let willRescue = false;
+let rescueTriggered = false;
+let rescueTugStarted = false;
+let rescueTugTimer = 0;
+let saviorDuck = null;
+let isHeroic = false;
+let savedName = '';
+
+// Keyboard & mouse tracking for manual mode
+const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, KeyW: false, KeyS: false, KeyA: false, KeyD: false };
+let manualTargetPoint = null;
+
+function initDucks() {
+  const cls = getActiveClass();
+  const eligible = cls.students.filter(s => !avoidRepeat || !s.called);
+  const pool = eligible.length > 0 ? eligible : cls.students;
+
+  ducks = pool.map((st, i) => {
+    const angle = (i / pool.length) * Math.PI * 2 + Math.random() * 0.5;
+    const dist = 80 + Math.random() * (ARENA.rx - 130);
+    return {
+      id: st.id,
+      name: st.name,
+      studentName: st.name,
+      x: ARENA.cx + Math.cos(angle) * (dist * 0.8),
+      y: ARENA.cy + Math.sin(angle) * (dist * 0.5),
+      vx: 0,
+      vy: 0,
+      dir: Math.random() > 0.5 ? 1 : -1,
+      direction: 1,
+      color: ['#F59E0B', '#FBBF24', '#FCD34D', '#F43F5E', '#10B981', '#3B82F6', '#8B5CF6'][i % 7],
+      flapCycle: Math.random() * 10,
+      wingAngle: 0,
+      walkCycle: 0,
+      hasGlasses: i % 4 === 1,
+      labelOffsetY: 0,
+      reactionEmoji: null,
+      reactionTimer: 0,
+      isTarget: false,
+      speech: '',
+      speechTimer: 0
+    };
+  });
+
+  if (ducks.length > 0) {
+    targetDuck = ducks[Math.floor(Math.random() * ducks.length)];
+    targetDuck.isTarget = true;
+  } else {
+    targetDuck = null;
+  }
+}
+
+// -----------------------------------------------------------------
+// RICH 2.5D PROCEDURAL CANVAS RENDERING (Đình Làng, Bunting, 3D Art)
+// -----------------------------------------------------------------
+
+function drawSkyAndHills(time) {
+  // Sky gradient
+  const skyGrad = ctx.createLinearGradient(0, 0, 0, 720 * 0.45);
+  skyGrad.addColorStop(0, '#C2DFB8');
+  skyGrad.addColorStop(0.5, '#DCEFD3');
+  skyGrad.addColorStop(1, '#F3F8EB');
+  ctx.fillStyle = skyGrad;
+  ctx.fillRect(0, 0, 1280, 720 * 0.45);
+
+  // Distant soft green hills
+  ctx.fillStyle = '#A1C382';
+  ctx.beginPath();
+  ctx.moveTo(0, 220);
+  ctx.bezierCurveTo(240, 170, 480, 240, 720, 190);
+  ctx.bezierCurveTo(960, 150, 1150, 210, 1280, 180);
+  ctx.lineTo(1280, 360);
+  ctx.lineTo(0, 360);
+  ctx.closePath();
+  ctx.fill();
+
+  // Secondary mid-ground hills with bamboo trees silhouette
+  ctx.fillStyle = '#89B365';
+  ctx.beginPath();
+  ctx.moveTo(0, 260);
+  ctx.bezierCurveTo(300, 210, 600, 270, 920, 220);
+  ctx.bezierCurveTo(1100, 200, 1220, 240, 1280, 230);
+  ctx.lineTo(1280, 380);
+  ctx.lineTo(0, 380);
+  ctx.closePath();
+  ctx.fill();
+
+  // Warm morning sun glow behind đình làng
+  const sunGrad = ctx.createRadialGradient(640, 120, 20, 640, 120, 260);
+  sunGrad.addColorStop(0, 'rgba(255, 245, 180, 0.45)');
+  sunGrad.addColorStop(0.6, 'rgba(255, 235, 150, 0.15)');
+  sunGrad.addColorStop(1, 'rgba(255, 235, 150, 0)');
+  ctx.fillStyle = sunGrad;
+  ctx.beginPath();
+  ctx.arc(640, 120, 260, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawDinhLang(time) {
+  const cx = 640;
+  const cy = 135;
+  ctx.save();
+
+  // Wooden foundation platform
+  ctx.fillStyle = '#6E4527';
+  ctx.fillRect(cx - 240, cy + 30, 480, 25);
+  ctx.fillStyle = '#8B5A33';
+  ctx.fillRect(cx - 235, cy + 28, 470, 6);
+
+  // Sturdy wooden pillars (6 pillars)
+  const pillarX = [-210, -130, -50, 50, 130, 210];
+  pillarX.forEach(px => {
+    // Stone base
+    ctx.fillStyle = '#9C988D';
+    ctx.fillRect(cx + px - 11, cy + 18, 22, 14);
+    // Wood pillar with cylinder shading
+    const pGrad = ctx.createLinearGradient(cx + px - 9, 0, cx + px + 9, 0);
+    pGrad.addColorStop(0, '#533118');
+    pGrad.addColorStop(0.4, '#804E2B');
+    pGrad.addColorStop(1, '#4A2A14');
+    ctx.fillStyle = pGrad;
+    ctx.fillRect(cx + px - 9, cy - 40, 18, 62);
+  });
+
+  // Carved wooden crossbeam
+  ctx.fillStyle = '#63391C';
+  ctx.fillRect(cx - 250, cy - 48, 500, 14);
+  ctx.fillStyle = '#8C522B';
+  ctx.fillRect(cx - 245, cy - 45, 490, 4);
+
+  // Main curved terracotta tiled roof (Mái đình ngói đỏ cong vút)
+  // Shadow under eaves
+  ctx.fillStyle = 'rgba(0,0,0,0.25)';
+  ctx.beginPath();
+  ctx.moveTo(cx - 290, cy - 40);
+  ctx.quadraticCurveTo(cx, cy - 45, cx + 290, cy - 40);
+  ctx.lineTo(cx + 250, cy - 35);
+  ctx.quadraticCurveTo(cx, cy - 38, cx - 250, cy - 35);
+  ctx.closePath();
+  ctx.fill();
+
+  // Lower roof layer
+  const roofGrad = ctx.createLinearGradient(0, cy - 110, 0, cy - 40);
+  roofGrad.addColorStop(0, '#C24A3B');
+  roofGrad.addColorStop(0.6, '#A93B2E');
+  roofGrad.addColorStop(1, '#862B20');
+
+  ctx.fillStyle = roofGrad;
+  ctx.beginPath();
+  ctx.moveTo(cx - 300, cy - 58);
+  ctx.quadraticCurveTo(cx - 230, cy - 42, cx, cy - 48);
+  ctx.quadraticCurveTo(cx + 230, cy - 42, cx + 300, cy - 58);
+  ctx.quadraticCurveTo(cx + 270, cy - 72, cx + 220, cy - 88);
+  ctx.quadraticCurveTo(cx, cy - 105, cx - 220, cy - 88);
+  ctx.quadraticCurveTo(cx - 270, cy - 72, cx - 300, cy - 58);
+  ctx.closePath();
+  ctx.fill();
+
+  // Tile rib ridges
+  ctx.strokeStyle = '#D76251';
+  ctx.lineWidth = 2.5;
+  for (let r = -240; r <= 240; r += 24) {
+    ctx.beginPath();
+    ctx.moveTo(cx + r * 0.9, cy - 90);
+    ctx.quadraticCurveTo(cx + r, cy - 65, cx + r * 1.15, cy - 48);
+    ctx.stroke();
+  }
+
+  // Top ridge (Bờ nóc mái đình) with traditional crest
+  ctx.fillStyle = '#F08544';
+  ctx.beginPath();
+  ctx.moveTo(cx - 180, cy - 90);
+  ctx.quadraticCurveTo(cx, cy - 108, cx + 180, cy - 90);
+  ctx.lineTo(cx + 175, cy - 98);
+  ctx.quadraticCurveTo(cx, cy - 116, cx - 175, cy - 98);
+  ctx.closePath();
+  ctx.fill();
+
+  // Curved crest ornaments on top ridge ends
+  ctx.fillStyle = '#E87432';
+  ctx.beginPath();
+  ctx.arc(cx - 175, cy - 102, 10, 0, Math.PI * 1.5, true);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(cx + 175, cy - 102, 10, -Math.PI * 0.5, Math.PI, false);
+  ctx.fill();
+
+  // Signboard banner in center: "SÂN ĐÌNH TRI THỨC"
+  ctx.fillStyle = '#9C291B';
+  ctx.fillRect(cx - 100, cy - 36, 200, 24);
+  ctx.strokeStyle = '#E7B547';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(cx - 98, cy - 34, 196, 20);
+
+  ctx.fillStyle = '#FFEAA7';
+  ctx.font = 'bold 12px "Be Vietnam Pro", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('SÂN ĐÌNH TRI THỨC', cx, cy - 24);
+
+  ctx.restore();
+}
+
+function drawFestivalBunting(time) {
+  const colors = ['#E63946', '#F4A261', '#E9C46A', '#2A9D8F', '#457B9D', '#9B5DE5'];
+  const points = [
+    { x: 120, y: 130 },
+    { x: 380, y: 145 },
+    { x: 640, y: 130 },
+    { x: 900, y: 145 },
+    { x: 1160, y: 130 }
+  ];
+
+  ctx.save();
+  ctx.strokeStyle = 'rgba(100, 70, 40, 0.6)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+  for (let i = 1; i < points.length; i++) {
+    const prev = points[i - 1];
+    const cur = points[i];
+    const mx = (prev.x + cur.x) / 2;
+    const my = Math.max(prev.y, cur.y) + 18;
+    ctx.quadraticCurveTo(mx, my, cur.x, cur.y);
+  }
+  ctx.stroke();
+
+  // Flags hanging along the rope
+  const numFlags = 28;
+  for (let i = 0; i < numFlags; i++) {
+    const progress = (i + 0.5) / numFlags;
+    const x = 140 + progress * 1000;
+    const sag = Math.sin(progress * Math.PI * 4) * 12 + 140;
+    const color = colors[i % colors.length];
+    const flutter = Math.sin((time || 0) * 0.003 + i) * 3;
+
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(x - 12, sag);
+    ctx.lineTo(x + 12, sag);
+    ctx.lineTo(x + flutter, sag + 24);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawCourtyardProps(time) {
+  // LEFT: Scarecrow (Bù nhìn rơm)
+  const scX = 110;
+  const scY = 240;
+  ctx.fillStyle = '#6E492B';
+  ctx.fillRect(scX - 4, scY - 80, 8, 120);
+  ctx.fillRect(scX - 35, scY - 50, 70, 6);
+  ctx.fillStyle = '#E3B04B';
+  ctx.beginPath();
+  ctx.moveTo(scX - 25, scY - 45);
+  ctx.lineTo(scX + 25, scY - 45);
+  ctx.lineTo(scX + 30, scY);
+  ctx.lineTo(scX - 30, scY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#D4A359';
+  ctx.beginPath();
+  ctx.moveTo(scX, scY - 95);
+  ctx.lineTo(scX + 30, scY - 72);
+  ctx.lineTo(-30 + scX, scY - 72);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#3E2723';
+  ctx.beginPath();
+  ctx.arc(scX - 6, scY - 65, 2.5, 0, Math.PI * 2);
+  ctx.arc(scX + 6, scY - 65, 2.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Haystacks (Đống rơm vàng)
+  drawHaystack(230, 260, 55, 65);
+  drawHaystack(300, 275, 45, 50);
+  drawHaystack(1160, 270, 70, 80);
+
+  // Ceramic water jars (Chum vại sành)
+  drawWaterUrn(1070, 310, 24, 32);
+  drawWaterUrn(1120, 325, 28, 38);
+  drawWaterUrn(430, 215, 20, 26);
+
+  // Banana plant leaves
+  drawBananaPlant(30, 160, 1);
+  drawBananaPlant(1250, 170, -1);
+}
+
+function drawHaystack(x, y, r, h) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(70, 50, 20, 0.25)';
+  ctx.beginPath();
+  ctx.ellipse(x, y + h * 0.45, r * 1.1, r * 0.4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  const hayGrad = ctx.createRadialGradient(x - r * 0.3, y - h * 0.2, 5, x, y, r * 1.3);
+  hayGrad.addColorStop(0, '#FFE082');
+  hayGrad.addColorStop(0.6, '#F1BF4A');
+  hayGrad.addColorStop(1, '#C99326');
+
+  ctx.fillStyle = hayGrad;
+  ctx.beginPath();
+  ctx.moveTo(x - r, y + h * 0.4);
+  ctx.quadraticCurveTo(x - r * 0.9, y - h * 0.4, x, y - h * 0.6);
+  ctx.quadraticCurveTo(x + r * 0.9, y - h * 0.4, x + r, y + h * 0.4);
+  ctx.quadraticCurveTo(x, y + h * 0.55, x - r, y + h * 0.4);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.strokeStyle = '#DCA334';
+  ctx.lineWidth = 1.5;
+  for (let i = 0; i < 7; i++) {
+    const sx = x - r * 0.6 + i * (r * 1.2 / 7);
+    const sy = y - h * 0.2 + (i % 2) * 15;
+    ctx.beginPath();
+    ctx.moveTo(sx, sy);
+    ctx.lineTo(sx + 8, sy + 14);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawWaterUrn(x, y, r, h) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(40, 25, 15, 0.3)';
+  ctx.beginPath();
+  ctx.ellipse(x, y + h * 0.45, r * 0.9, r * 0.35, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  const urnGrad = ctx.createLinearGradient(x - r, y, x + r, y);
+  urnGrad.addColorStop(0, '#662E1C');
+  urnGrad.addColorStop(0.3, '#A04D31');
+  urnGrad.addColorStop(0.7, '#BD5F3D');
+  urnGrad.addColorStop(1, '#532314');
+
+  ctx.fillStyle = urnGrad;
+  ctx.beginPath();
+  ctx.ellipse(x, y - h * 0.45, r * 0.6, r * 0.25, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(x - r * 0.5, y - h * 0.4);
+  ctx.bezierCurveTo(x - r * 1.2, y - h * 0.1, x - r * 1.1, y + h * 0.3, x - r * 0.6, y + h * 0.45);
+  ctx.lineTo(x + r * 0.6, y + h * 0.45);
+  ctx.bezierCurveTo(x + r * 1.1, y + h * 0.3, x + r * 1.2, y - h * 0.1, x + r * 0.5, y - h * 0.4);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = '#5A2616';
+  ctx.beginPath();
+  ctx.ellipse(x, y - h * 0.46, r * 0.65, r * 0.22, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#8E4028';
+  ctx.beginPath();
+  ctx.arc(x, y - h * 0.52, 4, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawBananaPlant(x, y, scaleX) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scaleX, 1);
+
+  const leafAngles = [-0.6, -0.3, 0.1, 0.5, 0.8];
+  leafAngles.forEach((ang, i) => {
+    ctx.save();
+    ctx.rotate(ang);
+    const leafGrad = ctx.createLinearGradient(0, 0, 160, 0);
+    leafGrad.addColorStop(0, '#538D22');
+    leafGrad.addColorStop(0.5, '#73A942');
+    leafGrad.addColorStop(1, '#AAD576');
+
+    ctx.fillStyle = leafGrad;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(80, -25 - i * 3, 160, 0);
+    ctx.quadraticCurveTo(80, 25 + i * 3, 0, 0);
+    ctx.fill();
+
+    ctx.strokeStyle = '#3E6B1D';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(155, 0);
+    ctx.stroke();
+    ctx.restore();
+  });
+  ctx.restore();
+}
+
+function drawArenaFloor() {
+  ctx.save();
+
+  // Outer soft dirt border / trampled edge
+  ctx.fillStyle = '#BA9868';
+  ctx.beginPath();
+  ctx.ellipse(ARENA.cx, ARENA.cy + 6, ARENA.rx + 16, ARENA.ry + 12, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Main sandy-clay arena ground gradient
+  const groundGrad = ctx.createRadialGradient(
+    ARENA.cx - 60,
+    ARENA.cy - 40,
+    40,
+    ARENA.cx,
+    ARENA.cy,
+    ARENA.rx
+  );
+  groundGrad.addColorStop(0, '#F5DEB3');
+  groundGrad.addColorStop(0.4, '#EBD2A2');
+  groundGrad.addColorStop(0.8, '#D8BA87');
+  groundGrad.addColorStop(1, '#C5A36F');
+
+  ctx.fillStyle = groundGrad;
+  ctx.beginPath();
+  ctx.ellipse(ARENA.cx, ARENA.cy, ARENA.rx, ARENA.ry, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Subtle running track marks / dust swirls in dirt
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.ellipse(ARENA.cx, ARENA.cy, ARENA.rx * 0.72, ARENA.ry * 0.68, 0, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawBambooFence(frontPass, time) {
+  const totalPosts = 34;
+  ctx.save();
+
+  for (let i = 0; i < totalPosts; i++) {
+    const angle = (i / totalPosts) * Math.PI * 2;
+    const isFront = angle > 0 && angle < Math.PI;
+
+    if (isFront !== frontPass) continue;
+
+    const px = ARENA.cx + Math.cos(angle) * ARENA.rx;
+    const py = ARENA.cy + Math.sin(angle) * ARENA.ry;
+
+    if (frontPass && Math.abs(px - ARENA.cx) < ARENA.gateWidth * 0.52 && py > ARENA.cy + ARENA.ry * 0.75) {
+      continue;
+    }
+
+    const scale = 0.75 + (py - (ARENA.cy - ARENA.ry)) / (ARENA.ry * 2) * 0.5;
+    const postHeight = 52 * scale;
+    const postWidth = 11 * scale;
+
+    // Drop shadow
+    ctx.fillStyle = 'rgba(60, 40, 20, 0.28)';
+    ctx.beginPath();
+    ctx.ellipse(px + 4 * scale, py + 2, postWidth * 0.9, postWidth * 0.45, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Bamboo post with cylinder gradient
+    const postGrad = ctx.createLinearGradient(px - postWidth / 2, 0, px + postWidth / 2, 0);
+    postGrad.addColorStop(0, '#B38B4D');
+    postGrad.addColorStop(0.35, '#DFC07F');
+    postGrad.addColorStop(0.8, '#C49D58');
+    postGrad.addColorStop(1, '#8A6329');
+
+    ctx.fillStyle = postGrad;
+    ctx.beginPath();
+    ctx.roundRect(px - postWidth / 2, py - postHeight, postWidth, postHeight, 3);
+    ctx.fill();
+
+    // Bamboo nodes (Knots)
+    ctx.strokeStyle = '#6A4716';
+    ctx.lineWidth = 1.8 * scale;
+    const nodeYs = [0.28, 0.62, 0.88];
+    nodeYs.forEach(ny => {
+      const yNode = py - postHeight + postHeight * ny;
+      ctx.beginPath();
+      ctx.moveTo(px - postWidth / 2 - 1, yNode);
+      ctx.lineTo(px + postWidth / 2 + 1, yNode);
+      ctx.stroke();
+    });
+
+    // Rope tie
+    ctx.strokeStyle = '#523A1E';
+    ctx.lineWidth = 2.2 * scale;
+    ctx.beginPath();
+    ctx.moveTo(px - postWidth / 2 - 1, py - postHeight * 0.65);
+    ctx.lineTo(px + postWidth / 2 + 1, py - postHeight * 0.65 - 2);
+    ctx.stroke();
+  }
+
+  // Horizontal bamboo rails
+  const railsCount = 2;
+  for (let r = 0; r < railsCount; r++) {
+    const railHFrac = r === 0 ? 0.38 : 0.72;
+    ctx.strokeStyle = '#C9A35F';
+    ctx.lineWidth = frontPass ? 5.5 : 3.5;
+    ctx.lineCap = 'round';
+
+    ctx.beginPath();
+    let started = false;
+    const step = 0.04;
+    const startAngle = frontPass ? 0.15 : Math.PI;
+    const endAngle = frontPass ? Math.PI - 0.15 : Math.PI * 2;
+
+    for (let a = startAngle; a <= endAngle; a += step) {
+      const rx = ARENA.cx + Math.cos(a) * (ARENA.rx - 2);
+      const ry = ARENA.cy + Math.sin(a) * (ARENA.ry - 2);
+
+      if (frontPass && Math.abs(rx - ARENA.cx) < ARENA.gateWidth * 0.48 && ry > ARENA.cy + ARENA.ry * 0.75) {
+        started = false;
+        continue;
+      }
+
+      const scale = 0.75 + (ry - (ARENA.cy - ARENA.ry)) / (ARENA.ry * 2) * 0.5;
+      const railY = ry - 52 * scale * railHFrac;
+
+      if (!started) {
+        ctx.moveTo(rx, railY);
+        started = true;
+      } else {
+        ctx.lineTo(rx, railY);
+      }
+    }
+    ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(90, 60, 20, 0.5)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function drawEntranceGate(time) {
+  const leftPostX = ARENA.cx - ARENA.gateWidth * 0.5;
+  const rightPostX = ARENA.cx + ARENA.gateWidth * 0.5;
+  const gy = ARENA.cy + ARENA.ry;
+
+  ctx.save();
+
+  [leftPostX, rightPostX].forEach((gx, idx) => {
+    const pW = 18;
+    const pH = 85;
+
+    // Base shadow
+    ctx.fillStyle = 'rgba(50, 30, 10, 0.35)';
+    ctx.beginPath();
+    ctx.ellipse(gx, gy + 4, 14, 7, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Wooden pillar
+    const pGrad = ctx.createLinearGradient(gx - pW / 2, 0, gx + pW / 2, 0);
+    pGrad.addColorStop(0, '#5A3416');
+    pGrad.addColorStop(0.4, '#8E5A2D');
+    pGrad.addColorStop(1, '#4A280F');
+
+    ctx.fillStyle = pGrad;
+    ctx.beginPath();
+    ctx.roundRect(gx - pW / 2, gy - pH, pW, pH, 4);
+    ctx.fill();
+
+    // Top finial
+    ctx.fillStyle = '#A36835';
+    ctx.beginPath();
+    ctx.arc(gx, gy - pH - 6, 9, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Wooden door leaves swung open
+    const doorAngle = idx === 0 ? -0.35 : 0.35;
+    ctx.save();
+    ctx.translate(gx, gy);
+    ctx.rotate(doorAngle);
+
+    const slatCount = 4;
+    for (let s = 0; s < slatCount; s++) {
+      const sx = (idx === 0 ? 1 : -1) * (s * 9 + 4);
+      ctx.fillStyle = '#9C683B';
+      ctx.fillRect(sx, -65, 7, 65);
+      ctx.fillStyle = '#6E4522';
+      ctx.fillRect(sx + 5, -65, 2, 65);
+    }
+    ctx.fillStyle = '#6B401D';
+    ctx.fillRect((idx === 0 ? 4 : -38), -52, 36, 6);
+    ctx.fillRect((idx === 0 ? 4 : -38), -20, 36, 6);
+
+    ctx.restore();
+  });
+
+  // Sign banner above gate
+  ctx.fillStyle = '#8B2616';
+  ctx.beginPath();
+  ctx.roundRect(ARENA.cx - 50, gy - 78, 100, 18, 4);
+  ctx.fill();
+  ctx.strokeStyle = '#F1C40F';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  ctx.fillStyle = '#FFF8E7';
+  ctx.font = 'bold 9px "Be Vietnam Pro", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('CỔNG VÀO SÂN', ARENA.cx, gy - 69);
+
+  ctx.restore();
+}
+
+function drawDuck(duck, time) {
+  const { x, y, dir, isTarget, hasGlasses, flapCycle } = duck;
+  const direction = duck.direction || dir || 1;
+  const walkCycle = duck.walkCycle || (flapCycle * 0.8);
+  const wingAngle = Math.sin(flapCycle) * 0.4;
+
+  ctx.save();
+  ctx.translate(x, y);
+
+  if (isTarget) {
+    ctx.strokeStyle = 'rgba(255, 215, 0, 0.45)';
+    ctx.lineWidth = 2.5;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.ellipse(0, 4, 26, 12, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Hop and soft shadow
+  const hopY = Math.abs(Math.sin(walkCycle)) * 4;
+  ctx.fillStyle = 'rgba(60, 40, 20, 0.22)';
+  ctx.beginPath();
+  ctx.ellipse(0, 6, 20 - hopY * 0.8, 9 - hopY * 0.4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.scale(direction, 1);
+  ctx.translate(0, -hopY);
+  if (duck.state === 'tugging') {
+    ctx.rotate(-0.25);
+  }
+
+  // 1. Waddling orange webbed feet
+  const leftFootOffset = Math.sin(walkCycle) * 6;
+  const rightFootOffset = -Math.sin(walkCycle) * 6;
+
+  ctx.fillStyle = '#FF7700';
+  ctx.beginPath();
+  ctx.ellipse(-6 + rightFootOffset, 4, 6, 3, 0.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(6 + leftFootOffset, 5, 7, 3.5, -0.2, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 2. Plump white-cream body
+  const bodyGrad = ctx.createRadialGradient(-4, -14, 4, 0, -10, 22);
+  bodyGrad.addColorStop(0, '#FFFFFF');
+  bodyGrad.addColorStop(0.7, '#FFFBF0');
+  bodyGrad.addColorStop(1, '#F3E8CD');
+
+  ctx.fillStyle = bodyGrad;
+  ctx.beginPath();
+  ctx.moveTo(-16, -14);
+  ctx.quadraticCurveTo(-22, -18, -18, -10);
+  ctx.quadraticCurveTo(-14, 0, 0, 2);
+  ctx.quadraticCurveTo(16, 2, 16, -10);
+  ctx.quadraticCurveTo(14, -22, 0, -22);
+  ctx.quadraticCurveTo(-12, -22, -16, -14);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.strokeStyle = '#EAD6B8';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  // 3. Feathery wings
+  ctx.save();
+  ctx.translate(-2, -13);
+  ctx.rotate(wingAngle * 0.8);
+
+  const wingGrad = ctx.createLinearGradient(-10, 0, 10, 0);
+  wingGrad.addColorStop(0, '#FAF6EC');
+  wingGrad.addColorStop(1, '#FFFFFF');
+
+  ctx.fillStyle = wingGrad;
+  ctx.beginPath();
+  ctx.moveTo(-6, -4);
+  ctx.quadraticCurveTo(4, -10, 14, -4);
+  ctx.quadraticCurveTo(12, 6, -2, 4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#EAD6B8';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.restore();
+
+  // 4. Round head
+  const headGrad = ctx.createRadialGradient(8, -26, 3, 8, -24, 16);
+  headGrad.addColorStop(0, '#FFFFFF');
+  headGrad.addColorStop(0.8, '#FFFBF0');
+  headGrad.addColorStop(1, '#F0E3C7');
+
+  ctx.fillStyle = headGrad;
+  ctx.beginPath();
+  ctx.arc(8, -24, 15, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#EAD6B8';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  // 5. Pink blush cheek
+  ctx.fillStyle = 'rgba(255, 130, 140, 0.4)';
+  ctx.beginPath();
+  ctx.ellipse(8, -20, 4.5, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 6. Shiny black anime eye with dual sparkle
+  ctx.fillStyle = '#1E1B18';
+  ctx.beginPath();
+  ctx.ellipse(12, -27, 3.5, 4.5, 0.1, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#FFFFFF';
+  ctx.beginPath();
+  ctx.arc(13.2, -28.5, 1.4, 0, Math.PI * 2);
+  ctx.arc(11.2, -25.5, 0.8, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Eyeglasses
+  if (hasGlasses) {
+    ctx.strokeStyle = '#1F2937';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(12, -27, 6.5, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(5.5, -27);
+    ctx.lineTo(2, -26);
+    ctx.stroke();
+  }
+
+  // 7. Bright orange beak
+  const beakOpen = Math.sin((time || 0) * 0.015) > 0.3 ? 3 : 0;
+  ctx.fillStyle = '#FF7A00';
+  ctx.beginPath();
+  ctx.moveTo(18, -26);
+  ctx.quadraticCurveTo(28, -25, 27, -21 - beakOpen);
+  ctx.quadraticCurveTo(22, -18, 17, -20);
+  ctx.closePath();
+  ctx.fill();
+
+  if (beakOpen > 0) {
+    ctx.fillStyle = '#D32F2F';
+    ctx.beginPath();
+    ctx.moveTo(18, -21);
+    ctx.lineTo(25, -21);
+    ctx.lineTo(19, -17);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawFarmer(farmerObj, time) {
+  const { x, y, walkCycle, ribbonWave, state, caught } = farmerObj;
+  const direction = farmerObj.direction || farmerObj.dir || 1;
+
+  ctx.save();
+  ctx.translate(x, y);
+
+  // Ground shadow
+  const shadowW = state === 'lunge' ? 36 : 28;
+  ctx.fillStyle = 'rgba(50, 30, 15, 0.28)';
+  ctx.beginPath();
+  ctx.ellipse(0, 4, shadowW, 12, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.scale(direction, 1);
+
+  let bodyTilt = 0;
+  let bodyY = -34;
+  let armReach = 18;
+
+  if (state === 'chase') {
+    bodyTilt = 0.22;
+    armReach = 28;
+  } else if (state === 'lunge') {
+    bodyTilt = 0.42;
+    armReach = 36;
+    bodyY = -28;
+  } else if (state === 'miss') {
+    bodyTilt = -0.15;
+    armReach = 14;
+  } else if (state === 'rescue_tug') {
+    bodyTilt = -0.25 + Math.sin((time || 0) * 0.02) * 0.1;
+    armReach = 24;
+    bodyY = -30;
+  } else if (state === 'caught_hug' || state === 'carry' || caught) {
+    bodyTilt = -0.05;
+    armReach = 16;
+  }
+
+  ctx.rotate(bodyTilt);
+
+  // 1. Bare feet
+  const legSwing = Math.sin(walkCycle) * 12;
+  ctx.fillStyle = '#F5C6A5';
+  ctx.beginPath();
+  ctx.ellipse(-10 - legSwing * 0.6, 2, 7, 4, 0.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(10 + legSwing * 0.6, 3, 8, 4.5, -0.2, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 2. Rolled-up dark trousers (Quần nâu xắn gấu)
+  ctx.fillStyle = '#3E2A1E';
+  ctx.beginPath();
+  ctx.roundRect(-16 - legSwing * 0.4, -18, 12, 18, 3);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.roundRect(4 + legSwing * 0.4, -18, 13, 19, 3);
+  ctx.fill();
+
+  // Cuff rolls
+  ctx.fillStyle = '#5A3F2E';
+  ctx.fillRect(-17 - legSwing * 0.4, -4, 14, 4);
+  ctx.fillRect(3 + legSwing * 0.4, -3, 15, 4);
+
+  // 3. Brown peasant tunic (Áo bà ba vải nâu)
+  const shirtGrad = ctx.createLinearGradient(-16, bodyY, 16, bodyY);
+  shirtGrad.addColorStop(0, '#6C4830');
+  shirtGrad.addColorStop(0.5, '#8C6041');
+  shirtGrad.addColorStop(1, '#5B3B24');
+
+  ctx.fillStyle = shirtGrad;
+  ctx.beginPath();
+  ctx.roundRect(-18, bodyY, 36, 26, 6);
+  ctx.fill();
+
+  // Rope sash belt
+  ctx.strokeStyle = '#EADDC7';
+  ctx.lineWidth = 3.5;
+  ctx.beginPath();
+  ctx.moveTo(-18, bodyY + 18);
+  ctx.lineTo(18, bodyY + 18);
+  ctx.stroke();
+
+  ctx.fillStyle = '#EADDC7';
+  ctx.fillRect(-6, bodyY + 18, 4, 9);
+  ctx.fillRect(-1, bodyY + 18, 4, 11);
+
+  // 4. Arms & Hands
+  if (state === 'caught_hug' || state === 'carry' || caught) {
+    // Wrapped arms holding caught duck against chest
+    ctx.fillStyle = '#7A5237';
+    ctx.beginPath();
+    ctx.roundRect(-2, bodyY + 4, 26, 12, 5);
+    ctx.fill();
+
+    // MINI DUCK IN ARMS!
+    ctx.save();
+    ctx.translate(14, bodyY + 2);
+    ctx.scale(0.85, 0.85);
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 16, 13, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    const miniFlap = Math.sin((time || 0) * 0.02) * 0.3;
+    ctx.save();
+    ctx.rotate(miniFlap);
+    ctx.fillStyle = '#FFF8E7';
+    ctx.beginPath();
+    ctx.ellipse(-8, -6, 10, 5, -0.4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    ctx.arc(8, -10, 11, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#111';
+    ctx.beginPath();
+    ctx.arc(11, -12, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#FFF';
+    ctx.beginPath();
+    ctx.arc(12, -13, 1, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#FF7700';
+    ctx.beginPath();
+    ctx.moveTo(14, -11);
+    ctx.lineTo(21, -8);
+    ctx.lineTo(14, -5);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = '#FF7700';
+    ctx.beginPath();
+    ctx.ellipse(-2, 13, 5, 3.5, 0.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(6, 14, 5, 3.5, -0.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+
+    // Front arm forearm
+    ctx.fillStyle = '#7A5237';
+    ctx.beginPath();
+    ctx.roundRect(8, bodyY + 6, 20, 10, 5);
+    ctx.fill();
+    ctx.fillStyle = '#F5C6A5';
+    ctx.beginPath();
+    ctx.ellipse(26, bodyY + 11, 5, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (state === 'rescue_tug') {
+    if (caught) {
+      ctx.fillStyle = '#7A5237';
+      ctx.beginPath();
+      ctx.roundRect(-2, bodyY + 2, 26, 12, 5);
+      ctx.fill();
+
+      // Duck slipping in arms
+      ctx.save();
+      ctx.translate(14, bodyY);
+      ctx.rotate(Math.sin((time || 0) * 0.03) * 0.15);
+      ctx.scale(0.85, 0.85);
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 16, 13, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.arc(8, -10, 11, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#111';
+      ctx.beginPath();
+      ctx.arc(11, -12, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#FF7700';
+      ctx.beginPath();
+      ctx.moveTo(14, -11);
+      ctx.lineTo(22, -8);
+      ctx.lineTo(14, -5);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#FF7700';
+      ctx.beginPath();
+      ctx.ellipse(-2, 16, 5, 4, 0.2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(6, 17, 5, 4, -0.2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+
+      ctx.fillStyle = '#7A5237';
+      ctx.beginPath();
+      ctx.roundRect(8, bodyY + 4, 20, 10, 5);
+      ctx.fill();
+      ctx.fillStyle = '#F5C6A5';
+      ctx.beginPath();
+      ctx.ellipse(26, bodyY + 9, 5, 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.fillStyle = '#7A5237';
+      ctx.beginPath();
+      ctx.roundRect(-4, bodyY + 6, 26, 12, 4);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.roundRect(10, bodyY + 10, 22, 11, 4);
+      ctx.fill();
+      ctx.fillStyle = '#F5C6A5';
+      ctx.beginPath(); ctx.ellipse(22, bodyY + 16, 6, 5, 0.3, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(32, bodyY + 18, 6, 5, 0.4, 0, Math.PI * 2); ctx.fill();
+    }
+  } else {
+    // Reaching / feeling forward
+    const handBob = Math.sin((time || 0) * 0.008) * 3;
+    ctx.fillStyle = '#7A5237';
+    ctx.beginPath();
+    ctx.roundRect(2, bodyY + 4, armReach, 10, 4);
+    ctx.fill();
+
+    ctx.fillStyle = '#F5C6A5';
+    ctx.beginPath();
+    ctx.ellipse(armReach + 4, bodyY + 8 + handBob, 6, 5, 0.2, 0, Math.PI * 2);
+    ctx.fill();
+
+    for (let f = 0; f < 3; f++) {
+      ctx.beginPath();
+      ctx.ellipse(armReach + 8, bodyY + 6 + f * 3 + handBob, 3, 1.8, 0.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // 5. Chibi Head & Cheeks
+  const headY = bodyY - 14;
+  const skinGrad = ctx.createRadialGradient(2, headY, 4, 0, headY, 18);
+  skinGrad.addColorStop(0, '#FFE0C8');
+  skinGrad.addColorStop(0.8, '#F5C6A5');
+  skinGrad.addColorStop(1, '#E2AE8A');
+
+  ctx.fillStyle = skinGrad;
+  ctx.beginPath();
+  ctx.arc(0, headY, 17, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = 'rgba(235, 100, 110, 0.45)';
+  ctx.beginPath();
+  ctx.arc(-8, headY + 5, 5, 0, Math.PI * 2);
+  ctx.arc(8, headY + 5, 5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#8B2C24';
+  if (state === 'miss') {
+    ctx.beginPath();
+    ctx.ellipse(0, headY + 9, 3.5, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    ctx.beginPath();
+    ctx.arc(0, headY + 7, 4.5, 0, Math.PI, false);
+    ctx.fill();
+  }
+
+  // 6. RED BLINDFOLD (Khăn đỏ bịt mắt)
+  ctx.fillStyle = '#D62828';
+  ctx.beginPath();
+  ctx.roundRect(-18, headY - 6, 36, 11, 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#FF595E';
+  ctx.fillRect(-17, headY - 4, 34, 2);
+
+  // Two fluttering red ribbon tails behind head
+  const wave1 = Math.sin((time || 0) * 0.01 + (ribbonWave || 0)) * 8;
+  const wave2 = Math.cos((time || 0) * 0.012 + (ribbonWave || 0)) * 10;
+
+  ctx.fillStyle = '#D62828';
+  ctx.beginPath();
+  ctx.moveTo(-16, headY);
+  ctx.quadraticCurveTo(-26, headY + wave1 * 0.5, -38, headY + wave1);
+  ctx.lineTo(-37, headY + wave1 + 6);
+  ctx.quadraticCurveTo(-25, headY + wave1 * 0.5 + 4, -16, headY + 4);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(-16, headY - 2);
+  ctx.quadraticCurveTo(-28, headY - 6 + wave2 * 0.5, -42, headY - 4 + wave2);
+  ctx.lineTo(-41, headY + 2 + wave2);
+  ctx.quadraticCurveTo(-27, headY - 2 + wave2 * 0.5, -16, headY + 2);
+  ctx.closePath();
+  ctx.fill();
+
+  // 7. CONICAL LEAF HAT (Nón lá)
+  const hatY = headY - 6;
+  const hatWidth = 52;
+  const hatHeight = 28;
+
+  const hatGrad = ctx.createLinearGradient(0, hatY - hatHeight, 0, hatY);
+  hatGrad.addColorStop(0, '#FFF2D1');
+  hatGrad.addColorStop(0.4, '#F3DC9E');
+  hatGrad.addColorStop(0.8, '#D8BC76');
+  hatGrad.addColorStop(1, '#BBA15D');
+
+  ctx.fillStyle = hatGrad;
+  ctx.beginPath();
+  ctx.moveTo(0, hatY - hatHeight);
+  ctx.lineTo(hatWidth * 0.55, hatY);
+  ctx.lineTo(-hatWidth * 0.55, hatY);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.strokeStyle = 'rgba(120, 85, 30, 0.4)';
+  ctx.lineWidth = 1.2;
+  for (let r = 1; r <= 3; r++) {
+    const ringFrac = r / 4;
+    const ry = hatY - hatHeight + hatHeight * ringFrac;
+    const rx = (hatWidth * 0.55) * ringFrac;
+    ctx.beginPath();
+    ctx.moveTo(-rx, ry);
+    ctx.lineTo(rx, ry);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = 'rgba(60, 40, 15, 0.35)';
+  ctx.beginPath();
+  ctx.ellipse(0, hatY + 1, hatWidth * 0.54, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawParticles(parts) {
+  parts.forEach(p => {
+    const alpha = Math.max(0, p.life / p.maxLife);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = p.color;
+
+    if (p.type === 'dust') {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (p.type === 'sweat') {
+      ctx.beginPath();
+      ctx.ellipse(p.x, p.y, p.size * 0.7, p.size * 1.3, 0.2, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (p.type === 'star') {
+      ctx.font = `${p.size * 2}px sans-serif`;
+      ctx.fillText('✨', p.x, p.y);
+    }
+    ctx.restore();
+  });
+}
+
+function drawNameBadges(ducksList, farmerObj) {
+  const visibleDucks = ducksList.filter(d => {
+    if (farmerObj.caught && farmerObj.caught.id === d.id) return false;
+    if (farmerObj.initialCaught && farmerObj.initialCaught.id === d.id && (gameState === 'CARRYING' || rescueTugStarted)) return false;
+    if (saviorDuck && saviorDuck.id === d.id && (gameState === 'CARRYING' || rescueTugStarted)) return false;
+    return true;
+  });
+
+  for (let i = 0; i < visibleDucks.length; i++) {
+    for (let j = i + 1; j < visibleDucks.length; j++) {
+      const d1 = visibleDucks[i];
+      const d2 = visibleDucks[j];
+      const dx = Math.abs(d1.x - d2.x);
+      const dy = Math.abs((d1.y - 36 + (d1.labelOffsetY || 0)) - (d2.y - 36 + (d2.labelOffsetY || 0)));
+
+      if (dx < 75 && dy < 24) {
+        if (d1.y > d2.y) {
+          d1.labelOffsetY = (d1.labelOffsetY || 0) + 2;
+          d2.labelOffsetY = (d2.labelOffsetY || 0) - 2;
+        } else {
+          d1.labelOffsetY = (d1.labelOffsetY || 0) - 2;
+          d2.labelOffsetY = (d2.labelOffsetY || 0) + 2;
+        }
+      }
+    }
+  }
+
+  visibleDucks.forEach(duck => {
+    duck.labelOffsetY = (duck.labelOffsetY || 0) * 0.9;
+    const badgeY = duck.y - 38 + duck.labelOffsetY;
+
+    ctx.save();
+    ctx.font = 'bold 12px "Be Vietnam Pro", sans-serif';
+    const textW = ctx.measureText(duck.name).width;
+    const padX = 9;
+    const badgeW = textW + padX * 2;
+    const badgeH = 22;
+    const bx = duck.x - badgeW / 2;
+    const by = badgeY - badgeH / 2;
+
+    if (Math.abs(duck.labelOffsetY) > 8) {
+      ctx.strokeStyle = 'rgba(30, 58, 138, 0.4)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(duck.x, duck.y - 28);
+      ctx.lineTo(duck.x, badgeY + badgeH / 2);
+      ctx.stroke();
+    }
+
+    // Shadow
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+    ctx.beginPath();
+    ctx.roundRect(bx, by + 2, badgeW, badgeH, 11);
+    ctx.fill();
+
+    // Badge pill background
+    ctx.fillStyle = duck.isTarget ? '#FFF9E6' : '#FFFFFF';
+    ctx.beginPath();
+    ctx.roundRect(bx, by, badgeW, badgeH, 11);
+    ctx.fill();
+
+    ctx.strokeStyle = duck.isTarget ? '#D97706' : '#2563EB';
+    ctx.lineWidth = duck.isTarget ? 2 : 1.5;
+    ctx.stroke();
+
+    ctx.fillStyle = '#1E3A8A';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(duck.name, duck.x, badgeY);
+
+    ctx.restore();
+  });
+}
+
+function drawSpeechBubbles() {
+  const activeBubbles = [];
+  ducks.forEach(d => {
+    if (d.speech && d.speechTimer > 0) {
+      activeBubbles.push({
+        x: d.x + ((d.dir || 1) === 1 ? 25 : -25),
+        y: d.y - 48,
+        text: d.speech,
+        timer: d.speechTimer,
+        isFarmer: false
+      });
+    }
+  });
+
+  if (farmer.speech && farmer.speechTimer > 0) {
+    activeBubbles.push({
+      x: farmer.x,
+      y: farmer.y - 65,
+      text: farmer.speech,
+      timer: farmer.speechTimer,
+      isFarmer: true
+    });
+  }
+
+  activeBubbles.slice(0, 2).forEach(b => {
+    const alpha = Math.min(1, b.timer / 0.3);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+
+    ctx.font = 'bold 12px "Be Vietnam Pro", sans-serif';
+    const textW = ctx.measureText(b.text).width;
+    const padX = 12;
+    const bubbleW = textW + padX * 2;
+    const bubbleH = 28;
+    const bx = b.x - bubbleW / 2;
+    const by = b.y - bubbleH;
+
+    // Drop shadow
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
+    ctx.beginPath();
+    ctx.roundRect(bx, by + 2, bubbleW, bubbleH, 14);
+    ctx.fill();
+
+    // Bubble background
+    ctx.fillStyle = b.isFarmer ? '#FEF3C7' : '#FFFFFF';
+    ctx.beginPath();
+    ctx.roundRect(bx, by, bubbleW, bubbleH, 14);
+    ctx.fill();
+
+    // Pointer tail
+    ctx.beginPath();
+    ctx.moveTo(b.x - 6, by + bubbleH);
+    ctx.lineTo(b.x, by + bubbleH + 7);
+    ctx.lineTo(b.x + 6, by + bubbleH);
+    ctx.closePath();
+    ctx.fillStyle = b.isFarmer ? '#FEF3C7' : '#FFFFFF';
+    ctx.fill();
+
+    ctx.strokeStyle = b.isFarmer ? '#D97706' : '#2563EB';
+    ctx.lineWidth = 1.6;
+    ctx.stroke();
+
+    ctx.fillStyle = b.isFarmer ? '#92400E' : '#1E293B';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(b.text, b.x, by + bubbleH / 2);
+
+    ctx.restore();
+  });
+}
+
+function renderScene(time = performance.now()) {
+  ctx.clearRect(0, 0, 1280, 720);
+
+  // 1. Environmental Background (Sky, distant village, communal house, props)
+  drawSkyAndHills(time);
+  drawDinhLang(time);
+  drawFestivalBunting(time);
+  drawCourtyardProps(time);
+
+  // 2. Dirt arena floor & Back half of bamboo fence (behind entities)
+  drawArenaFloor();
+  drawBambooFence(false, time);
+
+  // 3. Collect renderables for 2.5D Y-Sorting
+  const renderables = [];
+  if (gameState !== 'RESULT') {
+    renderables.push({ type: 'farmer', y: farmer.y, data: farmer });
+  }
+
+  ducks.forEach(d => {
+    // If duck is carried in farmer's arms, farmer will draw the duck inside his arms!
+    if (farmer.caught && farmer.caught.id === d.id && (gameState === 'CARRYING' || farmer.state === 'caught_hug')) {
+      return;
+    }
+    renderables.push({ type: 'duck', y: d.y, data: d });
+  });
+
+  renderables.sort((a, b) => a.y - b.y);
+
+  // 4. Render sorted entities
+  renderables.forEach(item => {
+    if (item.type === 'duck') {
+      drawDuck(item.data, time);
+    } else if (item.type === 'farmer') {
+      drawFarmer(item.data, time);
+    }
+  });
+
+  // 5. Front half of bamboo fence & Entrance gate (in front of entities)
+  drawBambooFence(true, time);
+  drawEntranceGate(time);
+
+  // 6. Dust, sweat, and star particles
+  drawParticles(particles);
+
+  // 7. Student Name Badges with Anti-Overlap
+  drawNameBadges(ducks, farmer);
+
+  // 8. Speech Bubbles
+  drawSpeechBubbles();
+
+  // 9. Manual mode instruction banner
+  if (mode === 'manual' && gameState === 'PLAYING') {
+    ctx.save();
+    ctx.fillStyle = 'rgba(30, 58, 138, 0.88)';
+    ctx.beginPath();
+    ctx.roundRect(440, 54, 400, 32, 10);
+    ctx.fill();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 13px "Be Vietnam Pro", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🕹️ Dùng phím Mũi tên / WASD hoặc Nhấp chuột dẫn đường!', 640, 70);
+    ctx.restore();
+  }
+}
+
+
+// Main Game Update Loop
+let lastTime = performance.now();
+function gameLoop(now) {
+  const dt = Math.min((now - lastTime) / 1000, 0.05);
+  lastTime = now;
+
+  // Update particles
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.life -= dt;
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    if (p.life <= 0) {
+      particles.splice(i, 1);
+    }
+  }
+
+  // Decrease speech timers
+  if (farmer.speechTimer > 0) farmer.speechTimer -= dt;
+  ducks.forEach(d => {
+    if (d.speechTimer > 0) d.speechTimer -= dt;
+  });
+
+  if (gameState === 'PLAYING') {
+    farmer.state = 'chase';
+    farmer.ribbonWave = (farmer.ribbonWave || 0) + dt * 4;
+    roundTimer += dt;
+    document.getElementById('top-timer').innerText = Math.max(0, Math.ceil(chaseDuration - roundTimer)) + 's';
+
+    // Duck AI flocking & scattering away from farmer
+    ducks.forEach(d => {
+      d.flapCycle += dt * 10;
+      const dx = d.x - farmer.x;
+      const dy = d.y - farmer.y;
+      const dist = Math.hypot(dx, dy);
+
+      if (dist < 120) {
+        // Run away!
+        d.vx += (dx / dist) * 150 * dt;
+        d.vy += (dy / dist) * 150 * dt;
+        d.dir = dx > 0 ? 1 : -1;
+        d.direction = d.dir;
+        if (Math.random() < 0.2) addParticle(d.x, d.y + 4, 'dust', '#C9A35F');
+        if (Math.random() < 0.015) audio.playQuack();
+      }
+
+      // Add gentle random wandering
+      d.vx += (Math.random() - 0.5) * 40 * dt;
+      d.vy += (Math.random() - 0.5) * 40 * dt;
+      d.vx *= 0.92;
+      d.vy *= 0.92;
+      d.x += d.vx * dt;
+      d.y += d.vy * dt;
+
+      // Keep within arena boundary
+      const nx = (d.x - ARENA.cx) / (ARENA.rx - 25);
+      const ny = (d.y - ARENA.cy) / (ARENA.ry - 25);
+      if (nx * nx + ny * ny > 1) {
+        const rad = Math.sqrt(nx * nx + ny * ny);
+        d.x = ARENA.cx + (nx / rad) * (ARENA.rx - 25);
+        d.y = ARENA.cy + (ny / rad) * (ARENA.ry - 25);
+        d.vx *= -0.5;
+        d.vy *= -0.5;
+      }
+    });
+
+    // Farmer Movement
+    farmer.walkCycle += dt * 8;
+
+    if (mode === 'auto') {
+      const prog = roundTimer / chaseDuration;
+      let tx = ARENA.cx;
+      let ty = ARENA.cy;
+
+      if (prog > 0.7 && targetDuck) {
+        // Honing in on target duck
+        tx = targetDuck.x;
+        ty = targetDuck.y;
+      } else {
+        // Stumbling around blindfolded
+        tx = ARENA.cx + Math.cos(roundTimer * 1.4) * 200;
+        ty = ARENA.cy + Math.sin(roundTimer * 1.8) * 100;
+      }
+
+      const fdx = tx - farmer.x;
+      const fdy = ty - farmer.y;
+      const fdist = Math.hypot(fdx, fdy);
+
+      if (fdist > 10) {
+        farmer.x += (fdx / fdist) * 115 * dt;
+        farmer.y += (fdy / fdist) * 115 * dt;
+        farmer.dir = fdx > 0 ? 1 : -1;
+      }
+
+      // Catch condition in auto mode
+      if ((prog > 0.82 || roundTimer >= chaseDuration) && targetDuck && fdist < 55) {
+        triggerCaught(targetDuck);
+      }
+    } else {
+      // Manual mode: Arrow keys, WASD, or Click/Drag Target
+      let mx = 0;
+      let my = 0;
+      if (keys.ArrowUp || keys.KeyW) my -= 1;
+      if (keys.ArrowDown || keys.KeyS) my += 1;
+      if (keys.ArrowLeft || keys.KeyA) mx -= 1;
+      if (keys.ArrowRight || keys.KeyD) mx += 1;
+
+      if (manualTargetPoint) {
+        const pdx = manualTargetPoint.x - farmer.x;
+        const pdy = manualTargetPoint.y - farmer.y;
+        const pdist = Math.hypot(pdx, pdy);
+        if (pdist > 15) {
+          mx = pdx / pdist;
+          my = pdy / pdist;
+        } else {
+          manualTargetPoint = null;
+        }
+      }
+
+      if (mx !== 0 || my !== 0) {
+        const len = Math.hypot(mx, my);
+        farmer.x += (mx / len) * 140 * dt;
+        farmer.y += (my / len) * 140 * dt;
+        farmer.dir = mx > 0 ? 1 : -1;
+      }
+
+      // Keep farmer in arena bounds
+      const fnx = (farmer.x - ARENA.cx) / (ARENA.rx - 30);
+      const fny = (farmer.y - ARENA.cy) / (ARENA.ry - 30);
+      if (fnx * fnx + fny * fny > 1) {
+        const rad = Math.sqrt(fnx * fnx + fny * fny);
+        farmer.x = ARENA.cx + (fnx / rad) * (ARENA.rx - 30);
+        farmer.y = ARENA.cy + (fny / rad) * (ARENA.ry - 30);
+      }
+
+      // Check collision with ducks
+      ducks.forEach(d => {
+        const dist = Math.hypot(d.x - farmer.x, d.y - farmer.y);
+        if (dist < 46) {
+          triggerCaught(d);
+        }
+      });
+    }
+
+  } else if (gameState === 'CARRYING') {
+    carryTimer += dt;
+    farmer.walkCycle += dt * 8;
+
+    // DRAMATIC RESCUE SEQUENCE:
+    if (willRescue) {
+      // 1. Savior duck steps in to rescue!
+      if (!rescueTriggered && carryTimer >= 0.4) {
+        rescueTriggered = true;
+        const others = ducks.filter(d => d.id !== farmer.caught.id);
+        if (others.length > 0) {
+          saviorDuck = others[Math.floor(Math.random() * others.length)];
+          saviorDuck.speech = 'Xin ' + teacherAddress.toLowerCase() + ' tha cho bạn em! 🥺';
+          saviorDuck.speechTimer = 2.8;
+        } else {
+          willRescue = false;
+        }
+      }
+
+      // 2. Savior duck rushes towards farmer's legs
+      if (rescueTriggered && !rescueTugStarted && saviorDuck) {
+        const sdx = (farmer.x + farmer.dir * 12) - saviorDuck.x;
+        const sdy = (farmer.y - 4) - saviorDuck.y;
+        const sdist = Math.hypot(sdx, sdy);
+        if (sdist > 16) {
+          saviorDuck.x += (sdx / sdist) * 280 * dt;
+          saviorDuck.y += (sdy / sdist) * 280 * dt;
+          saviorDuck.dir = sdx > 0 ? 1 : -1;
+        } else {
+          rescueTugStarted = true;
+          rescueTugTimer = 2.2;
+          farmer.state = 'rescue_tug';
+          if (saviorDuck) saviorDuck.state = 'tugging';
+          farmer.speech = 'Oái! Ai túm chân vịt của ' + teacherAddress.toLowerCase() + ' thế này?!';
+          farmer.speechTimer = 2.0;
+        }
+      }
+
+      // 3. Tug of war! Pulling feet
+      if (rescueTugStarted && rescueTugTimer > 0) {
+        rescueTugTimer -= dt;
+        if (saviorDuck) {
+          saviorDuck.x = farmer.x + farmer.dir * 12;
+          saviorDuck.y = farmer.y - 2 + Math.sin(rescueTugTimer * 16) * 3;
+          saviorDuck.speech = 'Xin ' + teacherAddress.toLowerCase() + ' tha cho bạn em! 🥺';
+          saviorDuck.speechTimer = 2.0;
+        }
+
+        // Turning point: Caught duck slips out and lands on the ground!
+        if (rescueTugTimer <= 1.1 && farmer.caught) {
+          const freed = farmer.caught;
+          farmer.caught = null;
+          freed.y = farmer.y + 6;
+          addParticle(freed.x, freed.y, 'star', '#FBBF24');
+          addParticle(freed.x, freed.y + 6, 'dust', '#BA9868');
+          freed.vx = -farmer.dir * 180;
+          freed.vy = -30;
+          freed.speech = 'Ôi may quá, cảm ơn bạn nhé!';
+          freed.speechTimer = 3.2;
+          farmer.speech = 'Ối kìa, trơn quá tuột mất rồi!';
+          farmer.speechTimer = 1.5;
+        }
+
+        // Tug ends: Farmer grabs the savior duck!
+        if (rescueTugTimer <= 0 && saviorDuck) {
+          rescueTugStarted = false;
+          willRescue = false;
+          isHeroic = true;
+          savedName = farmer.initialCaught ? farmer.initialCaught.name : '';
+          farmer.caught = saviorDuck;
+          farmer.state = 'caught_hug';
+          addParticle(farmer.x, farmer.y - 20, 'star', '#F59E0B');
+          farmer.speech = 'A ha! Bắt được bạn túm chân này rồi nhé!';
+          farmer.speechTimer = 2.5;
+          saviorDuck.speech = 'Ủa em xin tha cho bạn mà bị bắt luôn?! 😭';
+          saviorDuck.speechTimer = 2.8;
+          audio.playCatch();
+        }
+
+        renderScene();
+        requestAnimationFrame(gameLoop);
+        return;
+      }
+    }
+
+    // Farmer walks towards exit gate
+    const dx = ARENA.cx - farmer.x;
+    const dy = ARENA.exitY - farmer.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist > 8) {
+      farmer.x += (dx / dist) * 85 * dt;
+      farmer.y += (dy / dist) * 85 * dt;
+      farmer.dir = dx > 0 ? 1 : -1;
+    }
+
+    // Farmer crosses the gate: round finished!
+    if (farmer.y >= ARENA.gateY + 30) {
+      gameState = 'RESULT';
+      audio.playFanfare();
+      onRoundFinished(farmer.caught, isHeroic, savedName);
+    }
+  }
+
+  renderScene(now);
+  requestAnimationFrame(gameLoop);
+}
+
+function triggerCaught(duck) {
+  farmer.caught = duck;
+  farmer.initialCaught = duck;
+  farmer.state = 'caught_hug';
+  gameState = 'CARRYING';
+  addParticle(farmer.x, farmer.y - 20, 'star', '#F59E0B');
+  carryTimer = 0;
+  rescueTriggered = false;
+  rescueTugStarted = false;
+  isHeroic = false;
+  savedName = '';
+  // Dramatic rescue triggers if there is another duck available
+  willRescue = (ducks.length > 1);
+  audio.playCatch();
+}
+
+// Class Management Functions
+function refreshClassSelects() {
+  const topSel = document.getElementById('top-class-select');
+  const drawSel = document.getElementById('drawer-class-select');
+  topSel.innerHTML = '';
+  drawSel.innerHTML = '';
+
+  classes.forEach(c => {
+    const opt1 = document.createElement('option');
+    opt1.value = c.id; opt1.textContent = c.name + ' (' + c.students.length + ')';
+    if (c.id === activeClassId) opt1.selected = true;
+    topSel.appendChild(opt1);
+
+    const opt2 = document.createElement('option');
+    opt2.value = c.id; opt2.textContent = c.name + ' (' + c.students.length + ')';
+    if (c.id === activeClassId) opt2.selected = true;
+    drawSel.appendChild(opt2);
+  });
+
+  const cls = getActiveClass();
+  document.getElementById('cfg-students-text').value = cls.students.map(s => s.name).join('\n');
+  updateStats();
+}
+
+function onClassSelected(cid) {
+  activeClassId = cid;
+  refreshClassSelects();
+  initDucks();
+  renderScene();
+}
+
+function addNewClass() {
+  const inp = document.getElementById('new-class-input');
+  const name = inp.value.trim();
+  if (!name) return;
+  const newCls = {
+    id: 'cls-' + Date.now(),
+    name: name,
+    students: ['Học sinh 1', 'Học sinh 2', 'Học sinh 3', 'Học sinh 4'].map((n, i) => ({ id: 'st-' + Date.now() + '-' + i, name: n, called: false }))
+  };
+  classes.push(newCls);
+  activeClassId = newCls.id;
+  inp.value = '';
+  saveClasses();
+  refreshClassSelects();
+  initDucks();
+  renderScene();
+}
+
+function deleteCurrentClass() {
+  if (classes.length <= 1) {
+    alert('Phải giữ lại ít nhất 1 lớp!');
+    return;
+  }
+  const cur = getActiveClass();
+  if (!confirm('Bạn có chắc muốn xóa lớp ' + cur.name + '?')) return;
+  classes = classes.filter(c => c.id !== cur.id);
+  activeClassId = classes[0].id;
+  saveClasses();
+  refreshClassSelects();
+  initDucks();
+  renderScene();
+}
+
+// Controls handlers
+function onStartClicked() {
+  audio.init();
+  gameState = 'PLAYING';
+  roundTimer = 0;
+  farmer.x = ARENA.cx;
+  farmer.y = ARENA.cy + 10;
+  farmer.caught = null;
+  farmer.initialCaught = null;
+  farmer.speech = '';
+  rescueTriggered = false;
+  rescueTugStarted = false;
+  isHeroic = false;
+  savedName = '';
+  manualTargetPoint = null;
+
+  document.getElementById('btn-start').style.display = 'none';
+  document.getElementById('btn-pause').style.display = 'inline-flex';
+  document.getElementById('btn-stop').style.display = 'inline-flex';
+  document.getElementById('top-timer-box').style.display = 'inline-flex';
+
+  audio.playWhistle();
+  if (audio.bgmAudio.src) audio.bgmAudio.play().catch(()=>{});
+}
+
+function onPauseClicked() {
+  if (gameState === 'PLAYING') {
+    farmer.state = 'chase';
+    farmer.ribbonWave = (farmer.ribbonWave || 0) + dt * 4;
+    gameState = 'PAUSED';
+    document.getElementById('btn-pause').innerText = '▶ Tiếp Tục';
+    if (audio.bgmAudio.src) audio.bgmAudio.pause();
+  } else if (gameState === 'PAUSED') {
+    gameState = 'PLAYING';
+    document.getElementById('btn-pause').innerText = '⏸ Tạm Dừng';
+    if (audio.bgmAudio.src) audio.bgmAudio.play().catch(()=>{});
+  }
+}
+
+function onStopClicked() {
+  gameState = 'READY';
+  document.getElementById('btn-start').style.display = 'inline-flex';
+  document.getElementById('btn-pause').style.display = 'none';
+  document.getElementById('btn-stop').style.display = 'none';
+  document.getElementById('top-timer-box').style.display = 'none';
+  audio.bgmAudio.pause();
+  initDucks();
+  farmer.caught = null;
+  farmer.x = ARENA.cx;
+  farmer.y = ARENA.cy + 10;
+  renderScene();
+}
+
+function onRoundFinished(caughtDuck, isHeroic, savedName) {
+  const cls = getActiveClass();
+  const student = cls.students.find(s => s.id === caughtDuck.id);
+  if (student) student.called = true;
+  saveClasses();
+  updateStats();
+
+  document.getElementById('result-student-name').innerText = caughtDuck.name;
+  const tag = document.getElementById('result-tag');
+  const title = document.getElementById('result-title');
+  const desc = document.getElementById('result-desc');
+
+  if (tag && title) {
+    if (isHeroic) {
+      tag.innerText = '🦸‍♂️ BẮT ĐƯỢC CHÚ VỊT TÚM CHÂN CỨU BẠN!';
+      tag.style.background = '#FEE2E2';
+      tag.style.color = '#991B1B';
+      title.innerText = 'HIỆP SĨ TÚM CHÂN BỊ BẮT THAY!';
+      title.style.color = '#DC2626';
+      if (desc) {
+        desc.innerHTML = 'Bạn đã dũng cảm túm chân xin tha cho bạn' + (savedName ? ' <b>' + savedName + '</b>' : '') + '. Bạn ấy may mắn rơi xuống chạy thoát: <i>"Ôi may quá, cảm ơn bạn nhé!"</i> — Còn bạn túm chân thì bị bắt lên bảng!';
+      }
+    } else {
+      tag.innerText = '🌾 SÂN ĐÌNH ĐIỂM DANH';
+      tag.style.background = '#FEF3C7';
+      tag.style.color = '#92400E';
+      title.innerText = 'MỜI BẠN LÊN BẢNG THAM GIA HOẠT ĐỘNG!';
+      title.style.color = '#D97706';
+      if (desc) {
+        desc.innerText = 'Mời bạn lên bảng tham gia hoạt động học tập!';
+      }
+    }
+  }
+
+  document.getElementById('result-modal').style.display = 'flex';
+}
+
+function closeResultModal() {
+  document.getElementById('result-modal').style.display = 'none';
+  onStopClicked();
+}
+
+function toggleSound() {
+  audio.muted = !audio.muted;
+  document.getElementById('btn-sound').innerText = audio.muted ? '🔇 Tắt Âm' : '🔊 Hiệu Ứng';
+}
+
+function togglePlayMode() {
+  mode = mode === 'auto' ? 'manual' : 'auto';
+  document.getElementById('btn-mode-toggle').innerText = mode === 'auto' ? '🎮 Tự Động' : '🕹️ Cả Lớp Dẫn';
+  renderScene();
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    container.requestFullscreen().catch(()=>{});
+  } else {
+    document.exitFullscreen().catch(()=>{});
+  }
+}
+
+function toggleDrawer() {
+  const d = document.getElementById('settings-drawer');
+  d.style.display = d.style.display === 'flex' ? 'none' : 'flex';
+}
+
+// BGM Upload and Control
+function handleBgmUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  audio.init();
+  audio.bgmAudio.src = URL.createObjectURL(file);
+  audio.bgmTitle = file.name;
+  document.getElementById('bgm-track-title').innerText = file.name;
+  document.getElementById('bgm-player-box').style.display = 'block';
+  document.getElementById('btn-bgm').style.display = 'inline-flex';
+  audio.bgmAudio.play().catch(()=>{});
+  audio.bgmPlaying = true;
+  document.getElementById('btn-bgm').innerText = '⏸ Dừng Nhạc';
+}
+
+function toggleBgmPlay() {
+  if (!audio.bgmAudio.src) return;
+  if (audio.bgmAudio.paused) {
+    audio.bgmAudio.play().catch(()=>{});
+    audio.bgmPlaying = true;
+    document.getElementById('btn-bgm').innerText = '⏸ Dừng Nhạc';
+    document.getElementById('drawer-bgm-play-btn').innerText = '⏸ Tạm Dừng';
+  } else {
+    audio.bgmAudio.pause();
+    audio.bgmPlaying = false;
+    document.getElementById('btn-bgm').innerText = '▶ Bật Nhạc';
+    document.getElementById('drawer-bgm-play-btn').innerText = '▶ Phát Nhạc';
+  }
+}
+
+function setBgmVol(v) {
+  audio.bgmAudio.volume = parseFloat(v);
+}
+
+function removeBgm() {
+  audio.bgmAudio.pause();
+  audio.bgmAudio.src = '';
+  audio.bgmTitle = '';
+  document.getElementById('bgm-player-box').style.display = 'none';
+  document.getElementById('btn-bgm').style.display = 'none';
+}
+
+function updateSettings() {
+  chaseDuration = parseInt(document.getElementById('cfg-duration').value, 10);
+  teacherAddress = document.getElementById('cfg-address').value;
+  avoidRepeat = document.getElementById('cfg-avoid-repeat').checked;
+  updateStats();
+}
+
+function updateStudentRoster() {
+  const cls = getActiveClass();
+  const lines = document.getElementById('cfg-students-text').value.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  if (lines.length > 0) {
+    cls.students = lines.map((name, i) => ({ id: 'st-' + Date.now() + '-' + i, name, called: false }));
+    saveClasses();
+    refreshClassSelects();
+    initDucks();
+    alert('Đã lưu danh sách ' + lines.length + ' học sinh cho lớp ' + cls.name + '!');
+  }
+}
+
+function resetCallHistory() {
+  const cls = getActiveClass();
+  cls.students.forEach(s => s.called = false);
+  saveClasses();
+  updateStats();
+  initDucks();
+  alert('Đã làm mới vòng gọi cho lớp ' + cls.name + '!');
+}
+
+function updateStats() {
+  const cls = getActiveClass();
+  const remaining = cls.students.filter(s => !s.called).length;
+  document.getElementById('top-remaining-count').innerText = remaining;
+}
+
+// Export updated HTML file containing current class data!
+function exportUpdatedHTML() {
+  const fullHtml = document.documentElement.outerHTML;
+  const classesJson = JSON.stringify(classes, null, 2);
+  const updatedHtml = fullHtml.replace(
+    /let classes = \[[\s\S]*?\];\s*\/\/ Load saved data/m,
+    'let classes = ' + classesJson + ';\n// Load saved data'
+  );
+  const blob = new Blob([updatedHtml], { type: 'text/html;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Tro-Choi-Bit-Mat-Bat-Vit-' + getActiveClass().name + '.html';
+  a.click();
+}
+
+function exportDataJSON() {
+  const data = { classes, exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'bit-mat-bat-vit-du-lieu.json';
+  a.click();
+}
+
+function goToHome() {
+  onStopClicked();
+}
+
+// Keyboard controls
+window.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+  if (e.code in keys) {
+    keys[e.code] = true;
+  }
+  if (e.code === 'Space') {
+    e.preventDefault();
+    if (gameState === 'RESULT') {
+      closeResultModal();
+    } else if (gameState === 'READY') {
+      onStartClicked();
+    } else if (gameState === 'PLAYING') {
+    farmer.state = 'chase';
+    farmer.ribbonWave = (farmer.ribbonWave || 0) + dt * 4;
+      audio.playWhistle();
+    }
+  } else if (e.key === 'f' || e.key === 'F') {
+    toggleFullscreen();
+  } else if (e.key === 'Escape') {
+    if (document.getElementById('result-modal').style.display === 'flex') {
+      closeResultModal();
+    } else if (document.getElementById('settings-drawer').style.display === 'flex') {
+      toggleDrawer();
+    } else if (gameState === 'PLAYING') {
+    farmer.state = 'chase';
+    farmer.ribbonWave = (farmer.ribbonWave || 0) + dt * 4;
+      onPauseClicked();
+    }
+  } else if (e.key === 'm' || e.key === 'M') {
+    toggleSound();
+  }
+});
+
+window.addEventListener('keyup', (e) => {
+  if (e.code in keys) {
+    keys[e.code] = false;
+  }
+});
+
+// Canvas touch & click steering in manual mode
+function handleCanvasPointer(e) {
+  if (mode !== 'manual' || gameState !== 'PLAYING') return;
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  manualTargetPoint = {
+    x: (clientX - rect.left) * scaleX,
+    y: (clientY - rect.top) * scaleY
+  };
+}
+
+canvas.addEventListener('mousedown', handleCanvasPointer);
+canvas.addEventListener('mousemove', (e) => {
+  if (e.buttons === 1) handleCanvasPointer(e);
+});
+canvas.addEventListener('touchstart', handleCanvasPointer, { passive: true });
+canvas.addEventListener('touchmove', handleCanvasPointer, { passive: true });
+
+// Initial Run
+refreshClassSelects();
+initDucks();
+requestAnimationFrame(gameLoop);
+</script>
+
+
+<!-- Navigation back to Gọi Tên Ngôi Sao -->
+<style id="nav-star-style">
+  .hub-back-btn {
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 999999;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(11, 18, 48, 0.88);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #ffc23d;
+    border: 1.5px solid rgba(255, 194, 61, 0.45);
+    padding: 7px 16px;
+    border-radius: 999px;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-size: 13.5px;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .hub-back-btn:hover {
+    background: #ffc23d;
+    color: #0b1230;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 194, 61, 0.5);
+  }
+</style>
+<script id="nav-star-script">
+(function() {
+  // Ẩn nút quay về nếu game đang được nhúng trong khung iframe của Gọi Tên Ngôi Sao
+  if (window.self !== window.top) return;
+  
+  window.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('hubBackBtn')) return;
+    var a = document.createElement('a');
+    a.id = 'hubBackBtn';
+    a.className = 'hub-back-btn';
+    a.href = 'index.html';
+    a.title = 'Quay về trang chính Gọi Tên Ngôi Sao';
+    a.innerHTML = '<span style="font-size:16px;">⭐</span><span>Gọi Tên Ngôi Sao</span>';
+    document.body.appendChild(a);
+  });
+})();
+</script>
+
+</body>
+</html>

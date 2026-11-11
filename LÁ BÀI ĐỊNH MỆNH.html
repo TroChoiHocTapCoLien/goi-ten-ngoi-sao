@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Lá Bài Định Mệnh — Chỉ Gọi Tên Lên Bảng</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap');
+:root{--gold:#ffda87;--ink:#eef1ff;--muted:#aeb7d7;--glass:rgba(19,22,55,.72);--border:rgba(204,211,255,.19)}*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:'Be Vietnam Pro',system-ui,Arial,sans-serif;background:#06091b;color:var(--ink)}body{overflow-x:hidden}button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #8fe8ff;outline-offset:3px}.app{position:relative;min-height:100dvh;isolation:isolate;overflow:hidden;background:radial-gradient(ellipse at 48% 35%,#34206388,transparent 50%),radial-gradient(ellipse at 10% 80%,#16456470,transparent 40%),radial-gradient(ellipse at 90% 12%,#571b6b66,transparent 40%),linear-gradient(130deg,#050817,#101234 58%,#080b20)}.app:before{content:"";position:absolute;inset:-30%;z-index:-2;background:conic-gradient(from 70deg at 50% 50%,transparent,#743cb02a,transparent,#0099d52b,transparent);animation:nebula 28s linear infinite;filter:blur(55px)}.app:after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at center,transparent 25%,#020414b8 100%)}@keyframes nebula{to{transform:rotate(360deg)}}canvas#particles{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:12}.stars{position:absolute;inset:0;pointer-events:none;opacity:.65;background-image:radial-gradient(circle,#fff9 1px,transparent 1.5px),radial-gradient(circle,#6fe8ff77 1px,transparent 1.5px);background-size:113px 101px,181px 151px;background-position:19px 15px,70px 60px;mask-image:linear-gradient(to bottom,#0008,#000)}.rune{pointer-events:none;position:absolute;top:50%;left:50%;width:min(64vw,610px);aspect-ratio:1;border:1px solid #a78eff1c;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 65px #974dff12,inset 0 0 50px #8244ff11}.rune:before,.rune:after{content:"";position:absolute;border-radius:50%;inset:9%;border:1px dashed #add4ff22;animation:spin 90s linear infinite}.rune:after{inset:23%;border-style:solid;animation-direction:reverse}@keyframes spin{to{transform:rotate(360deg)}}header{position:relative;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px clamp(15px,3vw,45px)}.brand{display:flex;align-items:center;gap:12px}.emblem{display:grid;place-items:center;width:43px;height:43px;font-size:26px;border:1px solid #ffe4aa66;background:#c488ff25;border-radius:14px;box-shadow:0 0 25px #be5cff3f}.brand strong{display:block;letter-spacing:2px;color:#ffe6ae;font-size:clamp(12px,1.4vw,17px)}.brand span{display:block;color:#a6aaca;font-size:10px;letter-spacing:2.1px;margin-top:5px}.toolbar,.actions,.inline{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.btn{border:1px solid #c5bdff4a;color:white;background:linear-gradient(130deg,#ffffff18,#ffffff09);border-radius:12px;padding:11px 15px;box-shadow:inset 0 1px #ffffff14;transition:transform .2s,background .2s,box-shadow .2s;font-size:12px;font-weight:700}.btn:hover:not(:disabled){transform:translateY(-2px);background:#8b6fff36}.btn.primary{background:linear-gradient(115deg,#7b44e9,#c046e8 58%,#228bd7);border-color:#f6b5ff70;box-shadow:0 8px 32px #9e4cff66;font-weight:900;letter-spacing:.7px}.btn.gold{background:linear-gradient(130deg,#b87b26,#e4ad4c,#9d5c26);border-color:#ffe6a2a6;color:#171124;box-shadow:0 7px 26px #e4ad4c5c}.btn.icon{min-width:40px;padding:10px}.btn.small{padding:8px 11px}.btn.danger{border-color:#fa869866;color:#ffb2bd}.main{position:relative;z-index:2;min-height:calc(100dvh - 152px);display:flex;flex-direction:column;align-items:center;padding:12px 22px 20px}.headline{text-align:center;position:relative;z-index:3}.eyebrow{font-size:11px;letter-spacing:5px;color:#b6a8fa;font-weight:800}.headline h1{font-size:clamp(28px,4.4vw,61px);line-height:1.16;letter-spacing:1px;margin:12px 0 9px;background:linear-gradient(#fff8e3,#ffce83 60%,#d68e5f);background-clip:text;color:transparent;text-shadow:0 10px 42px #e5a84830}.headline p{font-size:clamp(12px,1.35vw,16px);color:#c2c4e2;margin:0}.arena{width:min(1140px,96vw);height:clamp(320px,52vh,550px);min-height:310px;position:relative;margin:12px auto 0;perspective:1000px;flex-shrink:0}.arena:before{content:"";position:absolute;left:12%;right:12%;bottom:3%;height:45px;background:radial-gradient(ellipse,#b45aff36,transparent 70%);filter:blur(8px)}.stage-label{position:absolute;top:2%;left:0;right:0;text-align:center;color:#c1b9f2;letter-spacing:3px;font-size:13px;font-weight:800;z-index:10;text-shadow:0 2px 10px #090a20;pointer-events:none}.playing-card{position:absolute;left:50%;top:50%;width:var(--cw,128px);height:var(--ch,172px);margin-left:calc(var(--cw,128px)/-2);margin-top:calc(var(--ch,172px)/-2);border-radius:16px;border:1px solid #ffffff8a;box-shadow:0 15px 30px #0009,0 0 25px var(--glow,#a674ff66),inset 0 1px #fff7;transform:translate(var(--x,0px),var(--y,0px)) rotate(var(--rot,0deg)) scale(var(--scale,1));transition:transform .65s cubic-bezier(.18,.8,.2,1.02),opacity .5s,filter .5s;z-index:var(--z,3);overflow:hidden;display:flex;align-items:center;flex-direction:column;justify-content:center;background:linear-gradient(140deg,var(--shade1),var(--shade2));user-select:none;will-change:transform,opacity}.playing-card:before{content:"";position:absolute;inset:6px;border:1px solid #ffffff60;border-radius:11px;pointer-events:none}.playing-card:after{content:"✦";position:absolute;font-size:90px;line-height:1;color:#ffffff13;transform:rotate(-20deg);pointer-events:none}.card-serial{position:absolute;top:16px;left:19px;color:#fff9;font-size:11px;font-weight:800}.card-corner{position:absolute;bottom:12px;right:17px;font-size:23px;color:#ffedb4ab}.card-name{position:relative;z-index:2;font-weight:900;text-align:center;line-height:1.4;padding:0 14px;font-size:clamp(11px,1.23vw,17px);overflow-wrap:anywhere;text-shadow:0 2px 7px #000a;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.card-gem{position:absolute;top:10px;right:14px;color:#fff9}.playing-card.silent{filter:brightness(.7)}.playing-card.depart{opacity:0;filter:blur(9px);pointer-events:none}.result-card{width:min(650px,94%);padding:32px 20px;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border:1px solid #ffe0a999;border-radius:25px;background:linear-gradient(130deg,#17163de8,#25184be8);box-shadow:0 0 80px #9e5afd66,inset 0 0 50px #ab8fff1a;text-align:center;z-index:15;animation:appear .65s both}.result-card .big-number{display:inline-grid;place-items:center;width:70px;height:70px;border-radius:50%;border:2px solid #ffe0a5;background:#92623a42;box-shadow:0 0 30px #f5c35c4d;color:#ffe6a6;font-size:23px;font-weight:900}.result-card h2{font-size:clamp(24px,3.6vw,45px);margin:13px 0;color:white}.result-card p{color:#d8d3f1}.result-card .tag{font-size:12px;letter-spacing:3px;color:var(--gold);font-weight:800}.result-card .actions{justify-content:center;margin-top:22px}@keyframes appear{from{opacity:0;transform:translate(-50%,-45%) scale(.8)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}.bottom{position:relative;z-index:18;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:13px;margin:0 auto 17px;padding:0 18px}.counter{font-size:12px;color:#c7c5e6;background:#161636a8;border:1px solid #bfb8fb24;border-radius:30px;padding:10px 17px}.hidden{display:none!important}.gift-area{width:min(1120px,96vw);flex:1;min-height:530px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:10px 0 25px}.student-bubble{border:1px solid #b9a8ff6e;background:#29204cbe;padding:11px 20px;border-radius:40px;font-size:13px}.gift-title{text-align:center;margin:0;font-size:clamp(25px,3vw,44px);color:#ffe2a3;text-shadow:0 0 23px #fbbd6466}.gift-hint{text-align:center;color:#c5c1e2;margin:0;font-size:13px}.gift-grid{width:min(830px,96%);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:25px 30px;place-items:center;margin:20px 0}.gift-box{--tone:#b48afa;position:relative;border:0;background:transparent;color:#fff;width:100%;max-width:210px;height:164px;display:grid;place-items:center;filter:drop-shadow(0 15px 14px #0008);transition:transform .35s,filter .35s;animation:float 3s ease-in-out infinite;animation-delay:var(--delay,0s)}.gift-box:hover:not(:disabled){transform:translateY(-12px) scale(1.07);filter:drop-shadow(0 4px 25px var(--tone))}.gift-box:disabled{opacity:.35}.gift-box .lid{position:absolute;top:28px;width:82%;height:40px;background:linear-gradient(130deg,#fff7,var(--tone) 32%,#201a46);border-radius:9px;border:2px solid #fff8;box-shadow:0 6px 7px #0006;z-index:3;transform:skewX(-6deg)}.gift-box .bodybox{position:absolute;top:60px;width:73%;height:92px;border-radius:5px 5px 16px 16px;border:2px solid #ffffff8c;background:linear-gradient(130deg,#ffffff78,var(--tone) 24%,#18112c);box-shadow:inset 0 0 22px #fff3,0 0 31px var(--tone)}.gift-box .ribbon{position:absolute;z-index:4;top:32px;width:21px;height:116px;background:linear-gradient(90deg,#fff1ae,#ffdf95 55%,#bd8e49);box-shadow:0 0 12px #fdf1bf6b}.gift-box .bow{z-index:5;position:absolute;top:12px;font-size:39px;color:#fff0ba;text-shadow:0 2px 8px #000c}.gift-box .num{position:absolute;z-index:6;bottom:-14px;font-size:12px;border:1px solid #ffffff58;border-radius:30px;background:#12132dce;padding:5px 15px;font-weight:900;letter-spacing:1px}@keyframes float{0%,100%{translate:0 0}50%{translate:0 -6px}}.gift-box.opening{animation:giftopen 1s both}.gift-box.opening .lid{animation:lidopen .8s .3s forwards}@keyframes giftopen{50%{transform:scale(1.28)}100%{transform:scale(1.5);opacity:0}}@keyframes lidopen{to{transform:translateY(-75px) rotate(-22deg);opacity:0}}.gift-result{position:relative;border:1px solid #f7d4949c;border-radius:28px;padding:32px 26px;background:linear-gradient(145deg,#231a50f5,#11152ff5);box-shadow:0 0 90px #9758ff6b,inset 0 0 40px #ffffff0b;width:min(680px,94vw);text-align:center;animation:popin .7s both}.gift-result .reward-icon{font-size:clamp(52px,7vw,90px);filter:drop-shadow(0 0 20px #ffc27380)}.gift-result h2{font-size:clamp(25px,3.5vw,45px);color:#ffe5a5;margin:12px 0}.gift-result p{color:#e4dff6;line-height:1.7}.gift-result .actions{justify-content:center;margin-top:24px}@keyframes popin{from{opacity:0;transform:translateY(40px) scale(.7)}to{opacity:1;transform:translateY(0) scale(1)}}.overlay{position:fixed;inset:0;background:#020315d9;backdrop-filter:blur(8px);z-index:60;display:grid;place-items:center;padding:18px}.modal{width:min(830px,98vw);max-height:90dvh;overflow:auto;border-radius:20px;background:linear-gradient(145deg,#20204a,#12162e);border:1px solid #a7a3f15e;box-shadow:0 20px 90px #000c;padding:25px}.modal h2{margin:0 0 12px;color:#ffdf9c}.modal h3{color:#d8c5ff;margin:16px 0 10px;font-size:15px}.modal p,.modal small,.modal label{color:#c5cae4}.modal .toprow{display:flex;justify-content:space-between;align-items:center;gap:12px}.modal textarea,.modal input,.modal select{width:100%;border:1px solid #9e9ed259;background:#0b1230;color:white;border-radius:10px;padding:12px;margin:7px 0 11px;outline:none}.modal input[type=checkbox]{width:auto;accent-color:#a77bff;transform:scale(1.2);margin:0 7px 0 0}.modal input[type=range]{padding:0;accent-color:#a77bff}.modal .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}.modal .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.modal .setting{border:1px solid #ffffff1e;background:#ffffff09;border-radius:12px;padding:14px}.modal .setting label{display:block;font-size:12px;margin-bottom:6px}.modal .check{display:flex;align-items:center;gap:8px;padding:8px 0;color:#dae0fa;font-size:13px}.modal .check input{margin:0}.log-row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:11px 6px;border-bottom:1px solid #ffffff18;font-size:12px}.log-row span{color:#aebad6}.badge{color:#ffe2a0;background:#ffc85c1c;border-radius:20px;padding:5px 9px;font-size:11px}.notice{font-size:12px;color:#f4d38f;line-height:1.7}.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#302250;border:1px solid #c5a6ff99;color:white;box-shadow:0 8px 25px #0008;border-radius:12px;padding:12px 20px;z-index:100;font-size:13px;max-width:90vw;text-align:center}.foot{text-align:center;position:relative;z-index:2;color:#aaa8ca;font-size:10px;padding:9px 0 14px;letter-spacing:1px}.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{border:1px solid #9e9dcc44;border-radius:30px;padding:7px 11px;font-size:12px;color:#d5daeb;background:#ffffff0b}.scorebig{font-size:64px;color:#ffe2a0;font-weight:900;text-shadow:0 0 30px #eabd5480}@media(max-width:700px){header{padding:12px;align-items:flex-start}.brand strong{font-size:11px}.brand span{font-size:8px}.emblem{width:34px;height:34px}.toolbar{justify-content:flex-end;gap:5px}.toolbar .btn{padding:8px;font-size:11px}.main{padding:12px 7px}.headline h1{font-size:29px}.headline .eyebrow{font-size:9px;letter-spacing:2px}.arena{height:50vh;min-height:320px}.playing-card{border-radius:10px}.card-name{font-size:11px}.gift-grid{gap:15px 3px}.gift-box{height:125px}.gift-box .lid{top:19px;height:30px}.gift-box .bodybox{top:47px;height:68px}.gift-box .ribbon{height:88px;top:21px;width:15px}.gift-box .bow{font-size:29px;top:5px}.gift-area{min-height:460px}.modal{padding:16px}.modal .grid2,.modal .grid3{grid-template-columns:1fr}.result-card{padding:22px 10px}.btn{font-size:11px;padding:10px 12px}}@media(prefers-reduced-motion:reduce){.app:before,.rune:before,.rune:after,.gift-box{animation:none!important}} 
+
+/* Vòng quay phép thuật: phối cảnh và quầng sáng huyền bí */
+.volume-control{display:flex;align-items:center;gap:7px;color:#f3d9ff;font-size:11px;font-weight:800;border:1px solid #af8dfd55;border-radius:12px;background:#1c153c99;padding:7px 10px}.volume-control input{width:82px;accent-color:#e5b963}.arena.orbiting{isolation:isolate}.arena.orbiting:before{height:95px;bottom:4%;background:radial-gradient(ellipse,#a45cffa3,transparent 70%)}.orbit-portal{position:absolute;left:50%;top:50%;width:min(47vh,420px);height:min(47vh,420px);max-width:70vw;max-height:70vw;border:2px solid #d6abff85;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 28px #9259ff99,0 0 95px #7847e677,inset 0 0 75px #5821ad66;pointer-events:none;animation:portal-pulse 2.1s ease-in-out infinite}.orbit-portal:before,.orbit-portal:after{content:'✧ ✦ ✧ ✦ ✧ ✦ ✧ ✦';position:absolute;inset:10%;border:2px dashed #c5b0ff72;border-radius:50%;display:grid;place-items:center;color:#ffe3a9b0;letter-spacing:15px;font-size:22px;animation:spin 13s linear infinite}.orbit-portal:after{inset:25%;border-color:#63d6ff99;animation-direction:reverse;animation-duration:9s;font-size:13px;color:#70d9f7}.orbit-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:clamp(35px,5vw,68px);filter:drop-shadow(0 0 25px #fac96c);text-shadow:0 0 25px #d29bff;pointer-events:none;animation:portal-pulse 1.3s ease-in-out infinite;z-index:2}.orbit-ring{position:absolute;left:50%;top:50%;border:1px solid #dfb7ff52;border-radius:50%;transform:translate(-50%,-50%) rotate(-12deg);pointer-events:none;box-shadow:0 0 28px #b05dff33}.arena.orbiting .playing-card{transition:none!important;backface-visibility:hidden}.arena.orbiting .playing-card.depart{transition:transform .85s ease-in,opacity .8s,filter .7s!important}.arena.orbiting .playing-card .card-name{font-size:clamp(10px,1.05vw,15px)}.arena.orbiting .stage-label{z-index:30;color:#ffe0a4;text-shadow:0 0 14px #dc9bff}.orbit-count{position:absolute;left:50%;bottom:0;transform:translateX(-50%);padding:7px 18px;border:1px solid #f7d9a85c;border-radius:40px;color:#ffe8ac;background:#130d33d9;font-size:12px;font-weight:800;letter-spacing:1px;z-index:40;white-space:nowrap}@keyframes portal-pulse{50%{filter:brightness(1.35);opacity:.8;scale:1.05}}@media(max-width:800px){.volume-control span{display:none}.volume-control input{width:62px}.volume-control{padding:7px}.arena.orbiting .playing-card{font-size:10px}}@media(prefers-reduced-motion:reduce){.orbit-portal,.orbit-center,.orbit-portal:before,.orbit-portal:after{animation:none}}
+
+.audio-upload{display:inline-flex;gap:7px;align-items:center;max-width:220px;white-space:nowrap}.audio-upload span{max-width:124px;overflow:hidden;text-overflow:ellipsis}.orbiting .playing-card{transition:none}.orbiting .playing-card.depart{transition:transform .62s ease-in,opacity .6s ease-in,filter .6s ease-in!important}.orbit-count{font-weight:900!important;letter-spacing:2px!important;text-shadow:0 0 14px #ba86ff,0 0 30px #bb72ff!important}.orbiting .orbit-portal{filter:drop-shadow(0 0 26px #bd61ff)}
+
+/* Hiệu ứng va chạm, giật sáng rồi hất thẻ ra khỏi vòng phép */
+.arena.orbiting.collision-impact .orbit-portal{box-shadow:0 0 90px #ffffffbb,0 0 190px #db5bffbb,inset 0 0 110px #ffdfb17a!important;border-color:#fff4cd!important}
+.arena.orbiting.collision-impact .orbit-center{filter:brightness(2.3) drop-shadow(0 0 30px #ffd47b)!important}
+.arena.orbiting .playing-card.collision-ejected{pointer-events:none!important;z-index:4!important}
+</style><style>
+/* THE FATE RITUAL - cinematic spectacle */
+.app{background:radial-gradient(ellipse at 50% 55%,#5016645c,transparent 43%),radial-gradient(ellipse at 0% 70%,#061b4199,transparent 50%),linear-gradient(145deg,#02030b,#10091c 53%,#030712)!important}
+.app:before{animation:nebula 13s linear infinite!important;filter:blur(36px)!important;opacity:.95}
+.arena.orbiting:after{content:"";position:absolute;inset:-12% -3%;pointer-events:none;z-index:2;background:repeating-conic-gradient(from 0deg at 50% 50%,#f1bfff08 0deg 2deg,transparent 2deg 13deg);mask-image:radial-gradient(ellipse at center,transparent 15%,black 43%,transparent 72%);animation:spellSpin 12s linear infinite}
+@keyframes spellSpin{to{transform:rotate(360deg)}}
+.orbit-portal{box-shadow:0 0 35px #ab33f5a8,0 0 110px #7427fa76,inset 0 0 75px #c339ff3a!important;border:2px solid #f3b8ffb0!important;animation:portalPulse 1.3s ease-in-out infinite alternate!important}
+@keyframes portalPulse{from{filter:drop-shadow(0 0 11px #8d38ff);opacity:.66}to{filter:drop-shadow(0 0 38px #e172ff);opacity:1}}
+.orbit-ring{box-shadow:0 0 18px #ecb4ff99,inset 0 0 23px #8337df65!important;border-color:#d7a2ff8c!important}
+.orbit-center{font-size:64px!important;color:#fbe6b1!important;text-shadow:0 0 20px #ffcd8b,0 0 65px #a65cff,0 0 120px #8f3eff!important;animation:heartSpell .72s ease-in-out infinite alternate}
+@keyframes heartSpell{to{transform:translate(-50%,-50%) scale(1.17);filter:brightness(1.6)}}
+.orbiting .playing-card{box-shadow:0 14px 32px #000d,0 0 24px var(--glow),0 0 8px #ffdfae88,inset 0 0 12px #ffffff35!important}
+.orbiting.final-three .playing-card{outline:2px solid #ffd9f3;box-shadow:0 0 35px #f741d9,0 0 65px #a453ff,0 18px 35px #000d!important}
+.orbiting.final-two .playing-card{outline:3px solid #ffe3a7;box-shadow:0 0 32px #ffbc4a,0 0 85px #c52dff,0 20px 35px #000e!important}
+.orbiting.final-one .playing-card{outline:3px solid #ffde82;box-shadow:0 0 45px #ffb74f,0 0 115px #f14dff,0 0 150px #9f33ff!important}
+.arena.orbiting .stage-label{top:0;color:#fff0c9!important;font-size:clamp(12px,1.5vw,19px)!important;letter-spacing:4px!important;text-shadow:0 0 12px #ff9e46,0 0 27px #ba48f3!important}
+.orbiting.final-three:before,.orbiting.final-two:before,.orbiting.final-one:before{content:"";position:absolute;inset:-10%;pointer-events:none;z-index:1;background:radial-gradient(ellipse at center,transparent 24%,#03000c8a 80%);animation:darkPulse .68s ease-in-out infinite alternate}
+@keyframes darkPulse{to{opacity:.5}}
+.orbit-count{font-size:clamp(12px,1.6vw,20px)!important;color:#ffe7a7!important;text-shadow:0 0 17px #f46fff,0 0 38px #d735ff!important;letter-spacing:3px!important}
+.fate-overlay{position:absolute;inset:0;z-index:40;pointer-events:none;display:grid;place-items:center;background:radial-gradient(circle,#a01f7814,#090010ba);opacity:0;transition:opacity .22s}
+.fate-overlay.show{opacity:1}
+.fate-overlay strong{font-size:clamp(80px,21vw,240px);font-weight:1000;color:#fff4d6;letter-spacing:-9px;text-shadow:0 0 15px #ffc862,0 0 60px #ff2be8,0 0 120px #ae32ff;animation:fatePop .7s ease-out both}
+@keyframes fatePop{from{transform:scale(2.2) rotate(-9deg);opacity:0;filter:blur(20px)}55%{transform:scale(.9);opacity:1;filter:blur(0)}to{transform:scale(1);opacity:1}}
+.fate-flash{position:absolute;inset:0;background:#fff6dc;pointer-events:none;z-index:70;animation:flashRitual .8s ease-out forwards}
+@keyframes flashRitual{0%{opacity:.8}20%{opacity:.08}40%{opacity:.55}100%{opacity:0}}
+.fate-suspense .app:after{background:radial-gradient(ellipse at center,transparent 8%,#02000de0 100%)}
+@media(prefers-reduced-motion:reduce){.app:before,.arena.orbiting:after,.orbit-portal,.orbit-center{animation:none!important}}
+.class-block{border:1px solid #9e9ed259;background:#ffffff09;border-radius:14px;padding:12px;margin:12px 0}.class-block-head{display:flex;gap:8px;align-items:center}.class-block-head .class-name{flex:1;margin:0}.class-block-foot{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.class-count{font-size:12px;color:#f4d38f}#classSelect{background:#161636a8;color:#ffe2a0;border:1px solid #bfb8fb24;border-radius:30px;padding:10px 14px;font-weight:700;font-size:12px;max-width:220px}</style>
+<!-- Đồng bộ cơ chế & màu sắc vũ trụ với Gọi Tên Ngôi Sao -->
+<style id="star-app-sync-theme">
+  :root {
+    --sky: #0b1230 !important;
+    --sky2: #151f4a !important;
+    --panel: #121a3d !important;
+    --panel2: #1a2452 !important;
+    --line: #2a3670 !important;
+    --ink: #eef2ff !important;
+    --muted: #a3add6 !important;
+    --star: #ffc23d !important;
+    --star2: #ffe08a !important;
+  }
+  body {
+    background: radial-gradient(1200px 700px at 70% -10%, #2a2f7a 0%, transparent 60%),
+                radial-gradient(900px 600px at -10% 110%, #3b1d5e 0%, transparent 55%),
+                #0b1230 !important;
+    color: #eef2ff !important;
+    font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif !important;
+  }
+  .modal, .dialog, .popup, .card, [class*="panel"], [class*="modal-content"] {
+    background: #121a3d !important;
+    color: #eef2ff !important;
+    border-color: #2a3670 !important;
+  }
+  button, .btn {
+    font-family: 'Be Vietnam Pro', sans-serif !important;
+  }
+</style>
+<script id="star-app-sync-script">
+(function(){
+  // Tự động đồng bộ danh sách học sinh từ app chính "Gọi Tên Ngôi Sao"
+  try {
+    var raw = localStorage.getItem('goi-ten-ngoi-sao-v1');
+    if (raw) {
+      var data = JSON.parse(raw);
+      var curCls = (data.classes || []).find(function(c){ return c.id === data.cur; }) || (data.classes || [])[0];
+      if (curCls && curCls.students && curCls.students.length > 0) {
+        window.STAR_APP_STUDENTS = curCls.students.slice();
+        console.log('[Gọi Tên Ngôi Sao] Đã đồng bộ lớp:', curCls.name, '(' + curCls.students.length + ' bạn)');
+      }
+    }
+  } catch(e) {}
+})();
+</script>
+
+</head><body><div class="app" id="app"><div class="stars"></div><div class="rune"></div><canvas id="particles"></canvas>
+<header><div class="brand"><div class="emblem">✦</div><div><strong>LÁ BÀI ĐỊNH MỆNH</strong><span>GỌI TÊN LÊN BẢNG</span></div></div><div class="toolbar"><button class="btn icon" id="soundBtn" title="Bật/tắt âm thanh">🔊</button><label class="volume-control" title="Âm lượng nhạc quay"><span>🎺 Nhạc quay</span><input id="lotteryVolume" type="range" min="0" max="100" value="55" aria-label="Âm lượng nhạc quay"></label><label class="btn audio-upload" title="Chọn nhạc quay từ máy"><span id="audioFileLabel">🎵 Tải nhạc MP3</span><input id="audioFileInput" type="file" accept="audio/*,.mp3,.wav,.ogg,.m4a" hidden></label><button class="btn small" id="clearAudioBtn" title="Trở về nhạc điện tử mặc định">✕ Nhạc</button><button class="btn" id="rosterBtn">👥 Lớp học</button><button class="btn icon" id="settingsBtn" title="Cài đặt">⚙️</button><button class="btn icon" id="fullBtn" title="Toàn màn hình">⛶</button></div></header>
+<main class="main"><div class="headline" id="headline"><div class="eyebrow">✧ PHÉP THUẬT ĐANG CHỜ ĐỢI ✧</div><h1 id="headlineTitle">Ai là người được chọn?</h1><p id="headlineSubtitle">Những lá bài đang nắm giữ điều bất ngờ...</p></div><div class="arena" id="arena"><div class="stage-label" id="stageLabel"></div></div></main>
+<div class="bottom" id="bottom"><select id="classSelect" title="Chọn lớp để chơi"></select><span class="counter" id="counter">Còn lại: 0/0</span><button class="btn primary" id="spinBtn">✦ QUAY GỌI TÊN ✦</button></div><div class="foot">✦ MỌI LÁ BÀI ĐỀU CÓ MỘT PHÉP MÀU ✦</div><div id="modalLayer"></div><div id="toastBox"></div></div>
+<script>
+'use strict';
+const KEY='magic-fate-cards-v3';
+const sample=['Nguyễn Hoàng Minh','Trần Minh Anh','Lê Gia Bảo','Phạm Ngọc Hà','Hoàng Đức Anh','Đặng Khánh Linh','Nguyễn Thu Trang','Bùi Minh Quân','Lê Bảo Ngọc','Trương Tuấn Kiệt','Võ Mai Phương','Phan Hải Đăng','Đỗ Thiên An','Ngô Thanh Tùng','Đinh Nhật Minh','Trần Ngọc Ánh','Vũ Đức Huy','Nguyễn Anh Thư','Phạm Hoài Nam','Lê Quỳnh Như','Huỳnh Gia Hân','Đào Quốc Bảo','Tạ Minh Châu','Phan Quốc Khánh','Lý Bảo Trân'];
+
+const defaults=()=>({classes:[{id:'c1',name:'Lớp học',students:sample.map((name,i)=>({id:'s'+(i+1),name})),selected:[]}],activeClassId:'c1',repeatStudents:false,sound:true,lotteryVolume:55});
+let data;try{data={...defaults(),...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch{data=defaults()}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(data))}catch{toast('Không thể lưu dữ liệu trên trình duyệt này.')}};
+const $=id=>document.getElementById(id);const sleep=t=>new Promise(r=>setTimeout(r,t));const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const activeClass=()=>data.classes.find(c=>c.id===data.activeClassId)||data.classes[0];
+const refreshClassSelect=()=>{const s=$('classSelect');if(!s)return;const ac=activeClass();if(!ac)return;s.innerHTML=data.classes.map(c=>'<option value="'+c.id+'">'+esc(c.name)+'</option>').join('');s.value=ac.id;};
+if(!Array.isArray(data.classes)||!data.classes.length){const oldStudents=Array.isArray(data.students)&&data.students.length?data.students:defaults().classes[0].students;const oldSelected=Array.isArray(data.selected)?data.selected:[];data.classes=[{id:'c'+Date.now(),name:'Lớp học',students:oldStudents,selected:oldSelected}];data.activeClassId=data.classes[0].id;delete data.students;delete data.selected;save();}
+if(!data.classes.find(c=>c.id===data.activeClassId))data.activeClassId=data.classes[0].id;
+function rand(n){if(n<=1)return 0;let a=new Uint32Array(1),lim=4294967296-(4294967296%n);do{crypto.getRandomValues(a)}while(a[0]>=lim);return a[0]%n}function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){let j=rand(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
+function toast(s){const t=document.createElement('div');t.className='toast';t.textContent=s;$('toastBox').append(t);setTimeout(()=>t.remove(),3000)}
+let state='IDLE',winner=null;
+const palettes=[['#51248e','#9b54fb','#9b54fb78'],['#093b81','#288dff','#288dff78'],['#075867','#1fc9d0','#1fc9d078'],['#075a4a','#24b98e','#24b98e78'],['#741935','#ed517e','#ed517e78'],['#734017','#ffae4a','#ffae4a78'],['#721a70','#e04fc9','#e04fc978'],['#202b74','#687cf1','#687cf178']];
+let audioCtx;function tone(freq=600,dur=.11,kind='sine',vol=.045){if(!data.sound)return;try{audioCtx ||=new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=kind;o.frequency.setValueAtTime(freq,audioCtx.currentTime);g.gain.setValueAtTime(vol,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+dur);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+dur)}catch{}}function victory(){[523,659,784,1047].forEach((v,i)=>setTimeout(()=>tone(v,.32,'sine',.07),i*120))}
+const canvas=$('particles'),ctx=canvas.getContext('2d');let parts=[],W=0,H=0;function fitCanvas(){W=canvas.width=$('app').clientWidth;H=canvas.height=$('app').clientHeight}window.addEventListener('resize',fitCanvas);fitCanvas();function burst(x,y,count=65,color='#ffdfa1'){for(let i=0;i<count;i++){let a=Math.random()*Math.PI*2,v=1+Math.random()*5;parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-1,life:55+Math.random()*55,max:110,color,size:1+Math.random()*3})}}function particles(){ctx.clearRect(0,0,W,H);if(Math.random()<.35&&parts.length<140)parts.push({x:Math.random()*W,y:H+4,vx:(Math.random()-.5)*.7,vy:-.3-Math.random()*.7,life:190,max:190,color:'#a6b8ff',size:.7+Math.random()*1.5});for(const p of parts){ctx.globalAlpha=Math.min(1,p.life/45);ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();p.x+=p.vx;p.y+=p.vy;p.vy+=.012;p.life--}ctx.globalAlpha=1;parts=parts.filter(p=>p.life>0);requestAnimationFrame(particles)}particles();
+function setHead(title,sub,eyebrow='✧ PHÉP THUẬT ĐANG CHỜ ĐỢI ✧'){$('headlineTitle').textContent=title;$('headlineSubtitle').textContent=sub;$('headline').querySelector('.eyebrow').textContent=eyebrow}function setState(v){state=v;updateControls()}function remaining(){const c=activeClass();return data.repeatStudents?[...c.students]:c.students.filter(s=>!c.selected.includes(s.id))}function updateControls(){$('counter').textContent=`Còn lại: ${remaining().length}/${activeClass().students.length}`;$('spinBtn').disabled=!['IDLE','RESULT'].includes(state)||remaining().length===0;$('spinBtn').classList.toggle('hidden',!['IDLE','RESULT'].includes(state));$('spinBtn').textContent=state==='IDLE'?'✦ QUAY GỌI TÊN ✦':'✦ QUAY NGƯỜI TIẾP THEO ✦';$('soundBtn').textContent=data.sound?'🔊':'🔇'}
+function getSize(n){const a=$('arena'),w=a.clientWidth,h=a.clientHeight;let columns=Math.ceil(Math.sqrt(n*w/h*.72));columns=Math.max(1,Math.min(columns,n));const rows=Math.ceil(n/columns);const cw=Math.min(133,Math.max(45,(w-28)/columns-14),Math.max(45,(h-35)/rows*.69));return {cw,ch:Math.round(cw*1.34),columns,rows}}
+function layCards(students,mode='grid'){const a=$('arena');a.innerHTML='<div class="stage-label" id="stageLabel"></div>';const {cw,ch,columns,rows}=getSize(students.length||1);const width=a.clientWidth,height=a.clientHeight;students.forEach((s,i)=>{const e=document.createElement('div'),p=palettes[i%palettes.length];e.className='playing-card';e.dataset.id=s.id;e.style.cssText=`--cw:${cw}px;--ch:${ch}px;--shade1:${p[0]};--shade2:${p[1]};--glow:${p[2]};--z:${i+2};`;e.innerHTML=`<span class="card-serial">${String(i+1).padStart(2,'0')}</span><span class="card-gem">✦</span><div class="card-name">${esc(s.name)}</div><span class="card-corner">✧</span>`;a.appendChild(e)});placeGrid(students.map(s=>s.id),false)}
+function placeGrid(ids,animate=true){const a=$('arena'),w=a.clientWidth,h=a.clientHeight;const n=ids.length;if(!n)return;const {cw,ch,columns,rows}=getSize(n);const xgap=Math.min(cw+13,(w-20)/columns),ygap=Math.min(ch+11,(h-28)/rows);ids.forEach((id,i)=>{const e=[...a.querySelectorAll('.playing-card')].find(x=>x.dataset.id===id);if(!e)return;const col=i%columns,row=Math.floor(i/columns),rn=Math.min(columns,n-row*columns);const x=(col-(rn-1)/2)*xgap,y=(row-(rows-1)/2)*ygap;e.style.setProperty('--cw',cw+'px');e.style.setProperty('--ch',ch+'px');e.style.setProperty('--x',x+'px');e.style.setProperty('--y',y+'px');e.style.setProperty('--rot','0deg');e.style.setProperty('--scale','1');e.style.opacity='1';e.classList.remove('depart');if(!animate)e.style.transition='none';else e.style.transition='';e.style.zIndex=i+2});if(!animate)requestAnimationFrame(()=>a.querySelectorAll('.playing-card').forEach(e=>e.style.transition=''))}
+function position(e,x,y,rot=0,scale=1){e.style.setProperty('--x',x+'px');e.style.setProperty('--y',y+'px');e.style.setProperty('--rot',rot+'deg');e.style.setProperty('--scale',scale)}
+// Âm nhạc quay số được tổng hợp tại chỗ, không dùng bản ghi có bản quyền.
+let lotterySession=0, lotteryTimer=null;
+let uploadedAudioUrl=null, uploadedAudioName='', uploadedAudio=new Audio();uploadedAudio.loop=true;
+function musicDB(){return new Promise((resolve,reject)=>{try{const req=indexedDB.open('magic-fate-music',1);req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('files'))req.result.createObjectStore('files')};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)}catch(e){reject(e)}})}
+async function persistMusic(file){try{const db=await musicDB();await new Promise((resolve,reject)=>{const tx=db.transaction('files','readwrite');tx.objectStore('files').put({file,name:file.name},'lottery');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)});db.close()}catch(e){toast('Không lưu lâu dài được nhạc trên trình duyệt này.')}}
+async function restoreMusic(){try{const db=await musicDB();const entry=await new Promise(resolve=>{const req=db.transaction('files').objectStore('files').get('lottery');req.onsuccess=()=>resolve(req.result);req.onerror=()=>resolve(null)});db.close();if(entry?.file)setUploadedMusic(entry.file,entry.name)}catch(e){}}
+function setUploadedMusic(file,name){if(uploadedAudioUrl)URL.revokeObjectURL(uploadedAudioUrl);uploadedAudioUrl=URL.createObjectURL(file);uploadedAudio.pause();uploadedAudio.src=uploadedAudioUrl;uploadedAudio.load();uploadedAudioName=name||file.name||'Nhạc đã tải';$('audioFileLabel').textContent='🎵 '+uploadedAudioName;uploadedAudio.volume=(data.lotteryVolume??55)/100}
+async function clearUploadedMusic(){stopLotteryMusic();uploadedAudio.pause();uploadedAudio.removeAttribute('src');uploadedAudio.load();if(uploadedAudioUrl)URL.revokeObjectURL(uploadedAudioUrl);uploadedAudioUrl=null;uploadedAudioName='';$('audioFileLabel').textContent='🎵 Tải nhạc MP3';$('audioFileInput').value='';try{let db=await musicDB();await new Promise(resolve=>{const tx=db.transaction('files','readwrite');tx.objectStore('files').delete('lottery');tx.oncomplete=resolve;tx.onerror=resolve});db.close()}catch(e){}toast('Đã chuyển về nhạc quay mặc định.')}
+function musicNote(f,d=.15,v=.1,wave='triangle',offset=0){
+ if(!data.sound || Number(data.lotteryVolume??55)<=0)return;
+ try{audioCtx ||= new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();
+ const now=audioCtx.currentTime+offset,osc=audioCtx.createOscillator(),gain=audioCtx.createGain();osc.type=wave;osc.frequency.setValueAtTime(f,now);
+ const amp=v*(Number(data.lotteryVolume??55)/100);gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(Math.max(.0002,amp),now+.018);gain.gain.exponentialRampToValueAtTime(.0001,now+d);
+ osc.connect(gain);gain.connect(audioCtx.destination);osc.start(now);osc.stop(now+d+.01)}catch(e){}
+}
+function startLotteryMusic(){stopLotteryMusic();if(!data.sound)return;
+ if(uploadedAudioUrl){uploadedAudio.currentTime=0;uploadedAudio.volume=(data.lotteryVolume??55)/100;uploadedAudio.play().catch(()=>toast('Không phát được nhạc này. Thử file MP3 khác.'));return}
+ const token=lotterySession,melody=[392,523.25,587.33,659.25,783.99,659.25,587.33,523.25,440,523.25,659.25,783.99,880,783.99,659.25,587.33];let step=0;
+ const play=()=>{if(token!==lotterySession||!data.sound)return;const f=melody[step%melody.length];musicNote(f,.19,.11,'triangle');musicNote(f/2,.23,.055,'sawtooth');if(step%4===0)musicNote(130.81,.12,.13,'sine');if(step%2===0)musicNote(180,.055,.08,'square');step++;lotteryTimer=setTimeout(play,218)};play()}
+function stopLotteryMusic(){lotterySession++;clearTimeout(lotteryTimer);lotteryTimer=null;uploadedAudio.pause();if(uploadedAudioUrl)try{uploadedAudio.currentTime=0}catch(e){}}
+const easing=t=>1-Math.pow(1-t,3);
+function frameWait(){return new Promise(resolve=>requestAnimationFrame(resolve))}
+async function startDraw(){
+ if(!['IDLE','RESULT'].includes(state))return;
+ const pool=remaining();if(!pool.length){toast('Đã gọi hết học sinh! Hãy reset phiên.');return}
+ winner=pool[rand(pool.length)];
+ setState('SHUFFLE');$('arena').classList.remove('hidden');
+ setHead('VÒNG QUAY ĐỊNH MỆNH','Những lá bài va chạm, bật văng và biến mất qua từng vòng!','✧ NGHI THỨC VÒNG QUAY MA THUẬT ✧');
+ const order=shuffle(pool);layCards(order);const arena=$('arena');arena.classList.add('orbiting');
+ arena.insertAdjacentHTML('beforeend','<div class="orbit-ring" id="orbitRing"></div><div class="orbit-portal" id="orbitPortal"></div><div class="orbit-center" id="orbitCenter">✦</div><div class="orbit-count" id="orbitCount">✦ VÒNG QUAY ĐANG KHỞI ĐỘNG ✦</div>');
+ arena.insertAdjacentHTML('beforeend','<div class="fate-overlay" id="fateOverlay"><strong id="fateNumber">3</strong></div>');
+ const allCards=[...arena.querySelectorAll('.playing-card')];let active=[...allCards];let w=arena.clientWidth,h=arena.clientHeight;
+ const rx=Math.min(w*.38,Math.max(145,w*.30)),ry=Math.min(h*.36,Math.max(100,h*.32));
+ const ring=$('orbitRing');if(ring){ring.style.width=rx*2+'px';ring.style.height=ry*2+'px'}
+ const cw=Math.min(pool.length>35?64:pool.length>18?77:105,Math.max(43,w/(Math.max(pool.length,8)*.31)));
+ allCards.forEach((c,i)=>{c.style.setProperty('--cw',cw+'px');c.style.setProperty('--ch',Math.round(cw*1.34)+'px');c.style.transition='none';c.style.zIndex=i+4});
+ let angle=-Math.PI/2;
+ function orbit(){let n=active.length;active.forEach((c,i)=>{const multi=n>18?(i%2===0?1:.66):1,phase=i*2*Math.PI/n+angle;
+ const radius=n===1?.58:n===2?.75:n===3?.84:1,depth=(Math.sin(phase)+1)/2;
+ const size=n<=3?(n===1?1.26:n===2?1.16:1.08):(.80+.25*depth)*(n>45?.84:1);
+ position(c,Math.cos(phase)*rx*multi*radius,Math.sin(phase)*ry*multi*radius,Math.sin(phase)*12,size);c.style.zIndex=String(6+Math.round(depth*35));c.style.opacity=String(.77+.23*depth)})}
+ async function dramaBeat(number){
+  const over=$('fateOverlay');if(!over)return;
+  $('fateNumber').textContent=number;over.classList.remove('show');void over.offsetWidth;over.classList.add('show');
+  burst(W/2,H*.53,52,number===1?'#ffde8a':'#f06fff');
+  tone(number===1?100:135,.32,'sawtooth',.09);tone(number===1?210:260,.45,'sine',.10);
+  await sleep(number===1?690:570);over.classList.remove('show');
+ }
+ // Tạo các mốc loại theo số lá hiện có: 27→20→13→10→6→3→2→1.
+ // Lớp ít học sinh tự bỏ qua những mốc lớn hơn số người đang tham gia.
+ const milestones=[20,13,10,6,3,2,1].filter(x=>x<pool.length);
+ if(milestones[milestones.length-1]!==1&&pool.length>1)milestones.push(1);
+ let spinSpeed=9.5,spinAlive=true,lastFrame=performance.now(),collisionPulse=0;
+ function spellFrame(now){
+   if(!spinAlive)return;
+   const dt=Math.min(.05,(now-lastFrame)/1000);lastFrame=now;
+   angle+=spinSpeed*dt;
+   orbit();
+   if(collisionPulse>0){
+     collisionPulse=Math.max(0,collisionPulse-dt*2.7);
+     const portal=$('orbitPortal');if(portal)portal.style.transform=`translate(-50%,-50%) scale(${1+collisionPulse*.12})`;
+   }
+   requestAnimationFrame(spellFrame);
+ }
+ orbit();startLotteryMusic();requestAnimationFrame(spellFrame);
+ $('stageLabel').textContent='✦ VÒNG QUAY MA THUẬT ĐÃ KÍCH HOẠT ✦';
+ await sleep(1650);
+ async function collideAndEliminate(target,stageIndex){
+   if(active.length<=target)return;
+   const survivors=shuffle(active.filter(c=>c.dataset.id!==winner.id)).slice(0,target-1);
+   const keep=new Set([winner.id,...survivors.map(c=>c.dataset.id)]);
+   const removed=active.filter(c=>!keep.has(c.dataset.id));
+   // Va chạm: lá bài lao nhẹ về tâm trước khi bị bật ra khỏi quỹ đạo.
+   spinSpeed=Math.min(16,spinSpeed+1.45);
+   collisionPulse=1;
+   arena.classList.add('collision-impact');
+   $('stageLabel').textContent=`✦ VA CHẠM MA THUẬT · ${active.length} → ${target} LÁ ✦`;
+   tone(110,.21,'sawtooth',.095);tone(330,.14,'triangle',.065);
+   burst(W*.5,H*.53,45,target<=3?'#ffbe76':'#db7aff');
+   removed.forEach((card,i)=>{
+     const xx=Number.parseFloat(card.style.getPropertyValue('--x'))||0;
+     const yy=Number.parseFloat(card.style.getPropertyValue('--y'))||0;
+     card.style.transition='transform .20s cubic-bezier(.15,.8,.4,1),filter .2s';
+     card.style.filter='brightness(1.9)';
+     position(card,xx*.40,yy*.40,(i%2?21:-21),1.14);
+   });
+   await sleep(215);
+   active=active.filter(c=>keep.has(c.dataset.id));
+   const spread=Math.max(w,h)*1.28;
+   removed.forEach((card,i)=>{
+     const base=Math.atan2(Number.parseFloat(card.style.getPropertyValue('--y'))||0,Number.parseFloat(card.style.getPropertyValue('--x'))||0);
+     const direction=base+(i%2?0.25:-0.25)+(Math.random()-.5)*.5;
+     const dist=spread*(.86+Math.random()*.42);
+     card.classList.add('collision-ejected');
+     card.style.transition=`transform ${640+i%4*55}ms cubic-bezier(.17,.68,.36,1),opacity .67s ease-in,filter .67s ease-in`;
+     position(card,Math.cos(direction)*dist,Math.sin(direction)*dist,Math.random()*500-250,.22);
+     card.style.opacity='0';card.style.filter='brightness(2) blur(12px)';
+     if(i%3===0)tone(290+i*13,.08,'triangle',.022);
+   });
+   arena.classList.remove('collision-impact');
+   arena.classList.toggle('final-three',target===3);
+   arena.classList.toggle('final-two',target===2);
+   arena.classList.toggle('final-one',target===1);
+   $('orbitCount').textContent=`✦ CÒN ${target} / ${pool.length} LÁ BÀI ✦`;
+   $('stageLabel').textContent=target===3?'✦ BA LÁ BÀI — VÒNG XOÁY ĐỊNH MỆNH ✦':target===2?'✦ HAI LÁ — CUỘC ĐỐI ĐẦU CUỐI ✦':target===1?'✦ LÁ BÀI ĐỊNH MỆNH ĐÃ XUẤT HIỆN ✦':`✦ ${target} LÁ TIẾP TỤC QUAY ✦`;
+   if(target<=3){
+      const over=$('fateOverlay');if(over){$('fateNumber').textContent=target;over.classList.remove('show');void over.offsetWidth;over.classList.add('show');setTimeout(()=>over.classList.remove('show'),600)}
+      tone(target===1?95:160,.45,'sine',.12);
+      burst(W*.5,H*.53,85,target===1?'#ffe0a0':'#f36dff');
+   }
+   await sleep(690);
+   spinSpeed=target===1?2.8:target===2?5.5:target===3?6.6:Math.max(7.2,9.5-stageIndex*.28);
+ }
+ for(let stageIndex=0;stageIndex<milestones.length;stageIndex++){
+   const goal=milestones[stageIndex];
+   await collideAndEliminate(goal,stageIndex);
+   await sleep(goal<=3?(goal===1?950:1150):680);
+ }
+ if(pool.length===1){$('orbitCount').textContent='✦ LÁ BÀI DUY NHẤT ✦';await sleep(950)}
+ spinSpeed=1.5;await sleep(320);spinAlive=false;
+ const portal=$('orbitPortal');if(portal)portal.style.transform='translate(-50%,-50%)';
+
+ stopLotteryMusic();await sleep(330);tone(82,.75,'sine',.10);setState('LOCK');$('orbitCount').textContent='✦ LÁ BÀI ĐỊNH MỆNH ✦';
+ const chosen=allCards.find(c=>c.dataset.id===winner.id);
+ if(chosen){chosen.style.transition='transform 1.15s cubic-bezier(.17,.85,.14,1.15),width .85s,height .85s,filter 1s';chosen.style.zIndex='65';chosen.style.filter='brightness(1.45) drop-shadow(0 0 24px #ffe2a0)';chosen.style.setProperty('--cw',Math.min(175,w*.29)+'px');chosen.style.setProperty('--ch',Math.min(230,w*.39)+'px');position(chosen,0,0,0,1.28)}
+ const oc=$('orbitCenter');if(oc)oc.textContent='✧';tone(440,.27,'sine',.065);await sleep(1150);
+ arena.insertAdjacentHTML('beforeend','<div class="fate-flash"></div>');burst(W/2,H*.55,160,'#ffe2a0');victory();arena.classList.remove('orbiting','final-three','final-two','final-one');setState('RESULT');
+ arena.innerHTML=`<div class="result-card"><div class="tag">✦ LÁ BÀI ĐỊNH MỆNH ✦</div><div style="margin-top:20px"><span class="big-number">✧</span></div><h2>${esc(winner.name)}</h2><p style="font-size:clamp(20px,3vw,32px);font-weight:900;color:#ffe2a0;margin-top:14px">🎉 Mời bạn lên bảng!</p><div class="actions"><button class="btn gold" id="nextCall">✦ GỌI TIẾP ✦</button></div></div>`;
+ activeClass().selected.push(winner.id);save();updateControls();$('nextCall').onclick=()=>startDraw();
+}
+
+
+
+
+
+
+
+
+
+
+function modal(html){$('modalLayer').innerHTML=`<div class="overlay" id="overlay"><section class="modal" role="dialog" aria-modal="true"><div class="toprow"><h2>${html.title}</h2><button class="btn icon" id="closeModal" aria-label="Đóng">✕</button></div>${html.body}</section></div>`;$('closeModal').onclick=closeModal;$('overlay').addEventListener('click',e=>{if(e.target.id==='overlay')closeModal()})}function closeModal(){$('modalLayer').innerHTML=''}
+function classBlockHTML(name,text,cid){return '<div class="class-block" data-cid="'+(cid||'')+'"><div class="class-block-head"><input class="class-name" placeholder="Tên lớp (vd: 12A1)" value="'+esc(name)+'"><button class="btn icon" data-del title="Xóa lớp này">✕</button></div><textarea rows="6" placeholder="Nguyễn Văn An&#10;Trần Thị Bình">'+esc(text)+'</textarea><div class="class-block-foot"><button class="btn small" data-import>📂 Nhập TXT / CSV</button><input class="block-file" type="file" accept=".txt,.csv,text/plain,text/csv" style="display:none"><span class="class-count"></span></div></div>'}
+function openRoster(){modal({title:'👥 Danh sách lớp học',body:`<p>Mỗi khối là một lớp: nhập tên lớp và dán mỗi dòng một học sinh (có thể nhập dạng “01, Nguyễn Văn An”). Bấm “Lưu tất cả” để lưu mọi lớp cùng lúc.</p><div id="classBlocks">${data.classes.map(c=>classBlockHTML(c.name,c.students.map(s=>s.name).join('\n'),c.id)).join('')}</div><div class="actions"><button class="btn" id="addClass">＋ Thêm lớp</button><button class="btn primary" id="saveAllClasses">💾 Lưu tất cả</button><button class="btn" id="loadSample">Dùng danh sách mẫu</button></div><p class="notice">Mẹo: học sinh đã được gọi sẽ không được chọn lại trừ khi bật “Cho phép gọi lại”. Khi lưu lại, học sinh đã gọi được giữ nguyên theo tên trong cùng lớp.</p>`});
+const blocksBox=$('classBlocks');
+const updateCounts=()=>{blocksBox.querySelectorAll('.class-block').forEach(b=>{const n=b.querySelector('textarea').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean).length;b.querySelector('.class-count').textContent=n?('· '+n+' học sinh'):'· chưa có học sinh'})};
+blocksBox.addEventListener('input',updateCounts);updateCounts();
+blocksBox.addEventListener('click',e=>{const del=e.target.closest('[data-del]');if(del){const b=del.closest('.class-block');if((b.querySelector('.class-name').value.trim()||b.querySelector('textarea').value.trim())&&!confirm('Xóa khối lớp này?'))return;b.remove();updateCounts();return}const imp=e.target.closest('[data-import]');if(imp)imp.closest('.class-block').querySelector('.block-file').click()});
+blocksBox.addEventListener('change',async e=>{if(!e.target.classList.contains('block-file'))return;const f=e.target.files[0];if(!f)return;const b=e.target.closest('.class-block');b.querySelector('textarea').value=await f.text();updateCounts();e.target.value=''});
+$('addClass').onclick=()=>{blocksBox.insertAdjacentHTML('beforeend',classBlockHTML('','',''));const b=blocksBox.lastElementChild;b.querySelector('.class-name').focus();updateCounts()};
+$('loadSample').onclick=()=>{const blocks=[...blocksBox.querySelectorAll('.class-block')];let target=blocks.find(b=>!b.querySelector('textarea').value.trim());if(!target){blocksBox.insertAdjacentHTML('beforeend',classBlockHTML('',sample.join('\n'),''));updateCounts();return}target.querySelector('textarea').value=sample.join('\n');updateCounts()};
+$('saveAllClasses').onclick=()=>{
+const prevActiveId=data.activeClassId;
+const blocks=[...blocksBox.querySelectorAll('.class-block')].map(b=>({cid:b.dataset.cid||'',name:b.querySelector('.class-name').value.trim(),lines:b.querySelector('textarea').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map(x=>x.replace(/^\s*\d+\s*[.,;:–-]\s*/,''))})).filter(b=>b.lines.length>0);
+if(!blocks.length){toast('Cần có ít nhất một lớp có học sinh.');return}
+const over=blocks.find(b=>b.lines.length>180);if(over){toast('Lớp '+(over.name||'(chưa đặt tên)')+' vượt quá 180 học sinh.');return}
+const used=new Set(blocks.filter(b=>b.name).map(b=>b.name));
+blocks.forEach(b=>{if(!b.name){let n=1;while(used.has('Lớp '+n))n++;b.name='Lớp '+n;used.add(b.name)}});
+const seen=new Set();for(const b of blocks){if(seen.has(b.name)){toast('Tên lớp bị trùng: "'+b.name+'". Hãy đổi tên rồi lưu lại.');return}seen.add(b.name)}
+const oldByName=new Map();data.classes.forEach(c=>{if(!oldByName.has(c.name))oldByName.set(c.name,[]);oldByName.get(c.name).push(c)});
+const newClasses=blocks.map(b=>{
+const olds=oldByName.get(b.name);const old=olds&&olds.length?olds.shift():null;
+const idPool=new Map();if(old)old.students.forEach(s=>{if(!idPool.has(s.name))idPool.set(s.name,[]);idPool.get(s.name).push(s.id)});
+const students=b.lines.map(name=>{const q=idPool.get(name);const id=q&&q.length?q.shift():'s'+Date.now()+'-'+Math.random().toString(36).slice(2,8);return{id,name}});
+const newIds=new Set(students.map(s=>s.id));
+const selected=old?old.selected.filter(id=>newIds.has(id)):[];
+return{id:old?old.id:'c'+Date.now()+'-'+Math.random().toString(36).slice(2,8),name:b.name,students,selected}});
+const ai=blocks.findIndex(b=>b.cid===prevActiveId);
+data.classes=newClasses;data.activeClassId=ai>=0?newClasses[ai].id:newClasses[0].id;
+save();closeModal();resetView();
+const total=newClasses.reduce((a,c)=>a+c.students.length,0);
+toast('Đã lưu '+newClasses.length+' lớp, tổng '+total+' học sinh.')}}
+function openSettings(){modal({title:'⚙️ Cài đặt giáo viên',body:`<div class="setting"><label class="check"><input id="repeatStudent" type="checkbox" ${data.repeatStudents?'checked':''}> Cho phép gọi lại học sinh (học sinh đã được gọi vẫn có thể được gọi lại)</label></div><div class="actions"><button class="btn primary" id="saveSettings">💾 Lưu cài đặt</button><button class="btn" id="resetSession">↻ Reset phiên gọi tên</button><button class="btn danger" id="eraseAll">Xóa toàn bộ dữ liệu</button></div><p class="notice">“Reset phiên gọi tên” xóa danh sách học sinh đã được gọi của lớp đang chọn nhưng giữ danh sách lớp.</p>`});$('saveSettings').onclick=()=>{data.repeatStudents=$('repeatStudent').checked;save();closeModal();updateControls();toast('Đã lưu cài đặt.')};$('resetSession').onclick=()=>{if(confirm('Reset lượt gọi tên?')){activeClass().selected=[];save();closeModal();resetView()}};$('eraseAll').onclick=()=>{if(confirm('Xóa TOÀN BỘ dữ liệu đã lưu, bao gồm cả danh sách học sinh?')){data=defaults();save();closeModal();resetView()}}}
+
+
+function resetView(){stopLotteryMusic();$('arena').classList.remove('orbiting');winner=null;setState('IDLE');$('arena').classList.remove('hidden');setHead('Ai là người được chọn?','Những lá bài đang nắm giữ điều bất ngờ...');let list=shuffle(remaining());layCards(list);$('stageLabel').textContent=remaining().length?'✦ NHỮNG LÁ BÀI ĐANG CHỜ ĐỢI ✦':'✦ TẤT CẢ HỌC SINH ĐÃ ĐƯỢC GỌI ✦';updateControls();refreshClassSelect()}
+$('lotteryVolume').value=data.lotteryVolume??55;$('lotteryVolume').oninput=e=>{data.lotteryVolume=Number(e.target.value);uploadedAudio.volume=Number(e.target.value)/100;save()};$('audioFileInput').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;if(!f.type.startsWith('audio/')&&!/\.(mp3|wav|ogg|m4a)$/i.test(f.name)){toast('Vui lòng chọn tệp âm thanh.');return}setUploadedMusic(f,f.name);await persistMusic(f);toast('Đã tải nhạc: '+f.name)};$('clearAudioBtn').onclick=clearUploadedMusic;restoreMusic();$('spinBtn').onclick=startDraw;$('rosterBtn').onclick=openRoster;$('classSelect').onchange=()=>{data.activeClassId=$('classSelect').value;save();resetView();};$('settingsBtn').onclick=openSettings;$('soundBtn').onclick=()=>{data.sound=!data.sound;if(!data.sound)stopLotteryMusic();save();updateControls();tone(600,.1)};$('fullBtn').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen?.().catch(()=>toast('Trình duyệt không hỗ trợ chế độ toàn màn hình.'))};
+window.addEventListener('resize',()=>{if(state==='IDLE')resetView()});window.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('modalLayer').innerHTML)closeModal()});resetView();
+</script>
+<!-- Navigation back to Gọi Tên Ngôi Sao -->
+<style id="nav-star-style">
+  .hub-back-btn {
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 999999;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(11, 18, 48, 0.88);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #ffc23d;
+    border: 1.5px solid rgba(255, 194, 61, 0.45);
+    padding: 7px 16px;
+    border-radius: 999px;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-size: 13.5px;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .hub-back-btn:hover {
+    background: #ffc23d;
+    color: #0b1230;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 194, 61, 0.5);
+  }
+</style>
+<script id="nav-star-script">
+(function() {
+  // Ẩn nút quay về nếu game đang được nhúng trong khung iframe của Gọi Tên Ngôi Sao
+  if (window.self !== window.top) return;
+  
+  window.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('hubBackBtn')) return;
+    var a = document.createElement('a');
+    a.id = 'hubBackBtn';
+    a.className = 'hub-back-btn';
+    a.href = 'index.html';
+    a.title = 'Quay về trang chính Gọi Tên Ngôi Sao';
+    a.innerHTML = '<span style="font-size:16px;">⭐</span><span>Gọi Tên Ngôi Sao</span>';
+    document.body.appendChild(a);
+  });
+})();
+</script>
+
+</body></html>

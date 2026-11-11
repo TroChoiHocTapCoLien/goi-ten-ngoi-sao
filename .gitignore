@@ -1,0 +1,11 @@
+# Lối tắt Windows chỉ đúng trên máy đã tạo ra nó
+*.lnk
+
+# Tệp nháp khi phát triển, không phải một phần của ứng dụng
+test_script_0.js
+check_draw_globals.py
+extracted_*.js
+__pycache__/
+
+# Cấu hình riêng của công cụ trên máy
+.claude/
