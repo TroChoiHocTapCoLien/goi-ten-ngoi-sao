@@ -172,7 +172,10 @@ button{cursor:pointer}
 .b.ok{background:var(--ok);color:#06301b;border-color:transparent}
 .b.bad{background:#5a2330;border-color:#7a3340}
 .b.gold{background:linear-gradient(135deg,#ffe08a,#ffc23d);color:var(--star-ink);border-color:transparent}
-.timer{position:absolute;top:14px;left:14px;width:58px;height:58px}
+.timer{position:absolute;top:14px;left:14px;width:58px;height:58px;padding:0;border:0;border-radius:50%;background:none;color:inherit;cursor:default}
+.timer.wait{cursor:pointer;animation:tWait 1.1s ease-in-out infinite}
+.timer.wait:hover{transform:scale(1.12);animation:none}
+@keyframes tWait{50%{transform:scale(1.1);box-shadow:0 0 0 6px rgba(255,194,61,.25),0 0 22px rgba(255,194,61,.55)}}
 .timer svg{width:100%;height:100%;transform:rotate(-90deg)}
 .timer b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-display);font-size:22px}
 .timer.low b{color:var(--bad)}
@@ -528,6 +531,8 @@ if (!S.qsets && S.set) {
 }
 S.qsets && S.qsets.forEach(function(q){ if (q.name === '5 câu hỏi mẫu' && /^## mc 1\nKết quả của phép tính \$2 \+ 3\$/.test(q.text) && q.text.split('## ').length === 6) { q.name = '10 câu hỏi mẫu'; q.text = SAMPLE_Q; } });
 (function fill(){ var d = defState(); for (var k in d) if (S[k] == null) S[k] = d[k]; for (var j in d.set) if (S.set[j] == null) S.set[j] = d.set[j]; })();
+// Chuyển sang giọng nữ miền Bắc: máy nào trước đây đã chọn giọng nam thì đưa về "Tự động" (một lần)
+if (!S.set.voiceF) { if (/NamMinh|\bAn\b|Male|\bNam\b/i.test(S.set.voice || '')) S.set.voice = ''; S.set.voiceF = 1; }
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
 function cls(){ return S.classes.find(function(c){ return c.id === S.cur; }) || S.classes[0]; }
@@ -575,7 +580,7 @@ function viVoices(){ return window.speechSynthesis ? speechSynthesis.getVoices()
 function pickVoice(){
   var vs = viVoices(); if (!vs.length) return null;
   if (S.set.voice) { var f = vs.find(function(v){ return v.name === S.set.voice; }); if (f) return f; }
-  var pref = [/HoaiMy/i, /Google/i, /Linh|Mai|Female|Nữ/i];
+  var pref = [/HoaiMy.*Natural/i, /HoaiMy/i, /Google/i, /Linh|Mai|Female|Nữ/i];
   for (var i = 0; i < pref.length; i++) { var p = vs.find(function(v){ return pref[i].test(v.name); }); if (p) return p; }
   return vs.find(function(v){ return !/NamMinh|\bAn\b|Male|Nam\b/i.test(v.name); }) || vs[0];
 }
@@ -5690,7 +5695,7 @@ function pickRallyQ(){
   renderRes();
   musicVol();
   $('#ovRes').classList.add('show');
-  qFlowClock(); // câu hỏi thử thách không gọi tên ai nên tính giờ ngay, không đọc câu hỏi
+  qWaitTap(); // câu hỏi thử thách: không đọc câu hỏi, bấm đồng hồ để bắt đầu tính giờ
 }
 
 function resetRally(){
@@ -6202,25 +6207,15 @@ function reveal(name, log){
   qFlowStart(name);
   if (S.set.ask && !R.q) toast('Chưa có câu hỏi phù hợp — chọn bài học trong Thiết lập.');
 }
-/* Trình tự sau khi gọi tên: chỉ đọc tên (không đọc câu hỏi) → 5 giây chuẩn bị → bắt đầu tính giờ.
-   Có hạn chờ dự phòng: máy không báo "đọc xong" thì đồng hồ vẫn chạy, không bị kẹt.
-   Nút "Đọc câu hỏi" vẫn đọc khi giáo viên bấm. */
-var Q_PAUSE = 5000, qFlowId = 0, qFlowT = null;
-function qFlowStop(){ qFlowId++; clearTimeout(qFlowT); qFlowT = null; if (R) R.phase = null; var e = $('#qPhase'); if (e) e.hidden = true; }
-function canRead(){ return S.set.speak && !!window.speechSynthesis; }
-function qPhase(p){ if (!R) return; R.phase = p; var e = $('#qPhase'); if (e) { e.textContent = qPhaseText(); e.hidden = !p; } }
-function qPhaseText(){ return R && R.phase === 'wait' ? '⏳ Chuẩn bị 5 giây rồi tính giờ' : ''; }
-function qFlowClock(){ qFlowStop(); if (R && R.q && S.set.timer && !R.done && !R.tStart) startTimer(); }
-function qFlowOnce(id, fn){ var called = false; return function(){ if (called || id !== qFlowId) return; called = true; clearTimeout(qFlowT); qFlowT = null; fn(); }; }
-function qFlowStart(name){
-  qFlowStop();
-  if (!R.q || !S.set.timer) { speak('Mời bạn ' + name); return; }
-  qPhase('wait');
-  var id = qFlowId, pause = qFlowOnce(id, function(){ qFlowT = setTimeout(function(){ if (id === qFlowId) qFlowClock(); }, Q_PAUSE); });
-  if (!canRead()) return pause();
-  speak('Mời bạn ' + name, false, pause);
-  qFlowT = setTimeout(pause, 8000);
-}
+/* Sau khi gọi tên: chỉ đọc tên (không đọc câu hỏi). Đồng hồ đứng yên ở số giây đầy đủ,
+   chỉ bắt đầu đếm ngược khi giáo viên bấm vào đồng hồ. Nút "Đọc câu hỏi" vẫn đọc khi bấm. */
+function qFlowStop(){ if (R) R.phase = null; var e = $('#qPhase'); if (e) e.hidden = true; }
+function qPhase(p){ if (!R) return; R.phase = p; var e = $('#qPhase'); if (e) { e.textContent = qPhaseText(); e.hidden = !p; } updTimer(); }
+function qPhaseText(){ return R && R.phase === 'tap' ? '👆 Bấm vào đồng hồ để bắt đầu tính giờ' : ''; }
+// chờ giáo viên bấm đồng hồ (dùng khi vừa gọi tên, đổi câu, hoặc câu thử thách của Chặng Đua)
+function qWaitTap(){ qFlowStop(); if (R && R.q && S.set.timer && !R.done && !R.tStart) qPhase('tap'); }
+function qFlowStart(name){ speak('Mời bạn ' + name); qWaitTap(); }
+function qTapClock(){ if (!R || !R.q || R.done || R.tStart || !S.set.timer) return; qFlowStop(); startTimer(); }
 // Tên hiện từng chữ cái (chỉ lần đầu, không lặp lại khi chấm bài)
 function whoHTML(name, anim){
   var k = 0;
@@ -6228,7 +6223,7 @@ function whoHTML(name, anim){
 }
 function renderRes(){
   var q = R.q, st = stars()[R.name] || 0, h = '';
-  h += '<div class="res-head">' + (q && S.set.timer ? '<div class="timer" id="timer"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.5" fill="none" stroke="#2a3670" stroke-width="3.5"/><circle id="tArc" cx="18" cy="18" r="15.5" fill="none" stroke="#ffc23d" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="97.4" stroke-dashoffset="0"/></svg><b id="tNum"></b></div>' : '')
+  h += '<div class="res-head">' + (q && S.set.timer ? '<button type="button" class="timer" id="timer" data-act="tstart" title="Bấm để bắt đầu tính giờ" aria-label="Đồng hồ đếm ngược — bấm để bắt đầu"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.5" fill="none" stroke="#2a3670" stroke-width="3.5"/><circle id="tArc" cx="18" cy="18" r="15.5" fill="none" stroke="#ffc23d" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="97.4" stroke-dashoffset="0"/></svg><b id="tNum"></b></button>' : '')
     + '<button class="x" data-act="close" title="Đóng">✕</button><div class="lbl">★ Ngôi sao được gọi ★</div><div class="who">' + whoHTML(R.name, !R.shown) + '</div><div class="stars-now">Đang có <b style="color:var(--star)">★ ' + st + '</b> ngôi sao</div></div>';
   if (q) {
     h += '<div class="q" id="qBox" style="--qs:' + R.scale + '"><div class="q-meta"><span class="chip">' + TYPE_NAMES[q.t] + '</span>' + '<span>' + esc(q.src || 'Câu hỏi') + '</span><span class="chip" id="qPhase"' + (R.phase ? '' : ' hidden') + '>' + qPhaseText() + '</span></div>';
@@ -6267,12 +6262,15 @@ function updTimer(){
   var n = $('#tNum'), a = $('#tArc'); if (!n) return;
   var left = R.tStart ? R.tLeft : S.set.timer; n.textContent = left; // chưa bắt đầu tính giờ thì giữ nguyên số giây đầy đủ
   a.setAttribute('stroke-dashoffset', 97.4 * (1 - left / S.set.timer)); $('#timer').classList.toggle('low', left <= 5);
+  $('#timer').classList.toggle('wait', !R.tStart && !R.done); // nhấp nháy mời bấm khi chưa chạy
 }
 function stopTimer(){ clearInterval(timerIv); timerIv = null; }
 function award(ok){
   qFlowStop(); R.done = true; R.showAns = true; R.verdict = ok ? 'ok' : 'bad'; stopTimer(); logResult(ok ? 'Đúng' : 'Chưa đúng');
   if (ok) { var st = stars(); st[R.name] = (st[R.name] || 0) + 1; save(); renderSide(); SFX.ok(); setTimeout(SFX.star, 250); FX(120, innerWidth / 2, innerHeight * .25); }
   else SFX.bad();
+  // lời khen / động viên: đọc khi loa đang bật (không phụ thuộc nút "Đọc to tên học sinh")
+  if (S.set.sound) { var say = ok ? 'Chính xác! Cộng một ngôi sao!' : 'Chưa đúng rồi. Cố lên nhé!'; setTimeout(function(){ speak(say, true); }, 350); }
   renderRes(); musicVol();
 }
 function closeRes(){ qFlowStop(); stopTimer(); if (window.speechSynthesis) speechSynthesis.cancel(); $('#ovRes').classList.remove('show'); R = null; musicVol(); renderStage(); }
@@ -6280,6 +6278,7 @@ function closeRes(){ qFlowStop(); stopTimer(); if (window.speechSynthesis) speec
 $('#res').addEventListener('click', function(e){
   var t = e.target.closest('button'); if (!t || !R) return;
   var q = R.q, a = t.dataset.act;
+  if (a === 'tstart') { qTapClock(); return; }
   if (t.dataset.opt != null && !R.done) { R.pick = +t.dataset.opt; award(q.a.indexOf(R.pick) >= 0); return; }
   if (t.dataset.ds != null && !R.done) { R.ds[+t.dataset.ds] = +t.dataset.v; renderRes(); return; }
   if (a === 'close' || a === 'next') { closeRes(); if (a === 'next') setTimeout(S.mode === 'multi' ? multiNext : go, 150); return; }
@@ -6289,7 +6288,7 @@ $('#res').addEventListener('click', function(e){
   if (a === 'right') return award(true);
   if (a === 'wrong') return award(false);
   if (a === 'check') { if (R.ds.filter(function(v){ return v != null; }).length < q.c.length) return toast('Chọn Đ hoặc S cho tất cả các ý trước khi chấm.'); var k = q.a.every(function(v, i){ return R.ds[i] === v; }); award(k); return; }
-  if (a === 'swap') { R.q = pickQ(); if (R.log) { R.log.q = R.q ? R.q.q.replace(/\s+/g, ' ').slice(0, 160) : ''; save(); } R.pick = null; R.ds = []; R.showAns = false; R.verdict = null; stopTimer(); qFlowStop(); R.tStart = null; renderRes(); qFlowClock(); return; }
+  if (a === 'swap') { R.q = pickQ(); if (R.log) { R.log.q = R.q ? R.q.q.replace(/\s+/g, ' ').slice(0, 160) : ''; save(); } R.pick = null; R.ds = []; R.showAns = false; R.verdict = null; stopTimer(); qFlowStop(); R.tStart = null; renderRes(); qWaitTap(); return; }
   if (a === 'give') { logResult('Thưởng sao'); var st = stars(); st[R.name] = (st[R.name] || 0) + 1; save(); renderSide(); SFX.star(); FX(80, innerWidth / 2, innerHeight * .25); renderRes(); toast('Đã thưởng 1 ngôi sao cho ' + R.name); }
 });
 $('#ovRes').addEventListener('click', function(e){ if (e.target.id === 'ovRes') closeRes(); });

@@ -8,13 +8,13 @@ $scriptDir = $PSScriptRoot
 $html = Join-Path $scriptDir "index.html"
 $ico = Join-Path $scriptDir "app.ico"
 
-# Find Chrome or Edge
+# Ưu tiên Edge (có giọng nữ miền Bắc HoaiMy), sau đó mới tới Chrome
 $browsers = @(
+    "${env:ProgramFiles(x86)}\Microsoft\Edge\Application\msedge.exe",
+    "$env:ProgramFiles\Microsoft\Edge\Application\msedge.exe",
     "$env:ProgramFiles\Google\Chrome\Application\chrome.exe",
     "${env:ProgramFiles(x86)}\Google\Chrome\Application\chrome.exe",
-    "$env:LocalAppData\Google\Chrome\Application\chrome.exe",
-    "${env:ProgramFiles(x86)}\Microsoft\Edge\Application\msedge.exe",
-    "$env:ProgramFiles\Microsoft\Edge\Application\msedge.exe"
+    "$env:LocalAppData\Google\Chrome\Application\chrome.exe"
 )
 
 $targetBrowser = $null

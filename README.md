@@ -32,7 +32,7 @@ Tất cả 15 trò chơi đều được tích hợp trực tiếp trên thanh �
 - **Dùng chung danh sách học sinh**: Chọn lớp ở thanh trên cùng, tất cả 15 game đều ngay lập tức cập nhật danh sách của lớp đó.
 - **Không gọi lại bạn đã được gọi**: Tùy chọn `Không gọi lại` tự động lọc học sinh và hiển thị thanh tiến độ còn lại của lớp.
 - **Tích hợp bộ câu hỏi**: Kèm câu hỏi trắc nghiệm, đúng/sai, tự luận với công thức Toán KaTeX, đồng hồ đếm ngược và chấm điểm tự động.
-- **Âm thanh & Đọc tên**: Âm thanh Web Audio chân thực, tiếng reo hò "Yeah!", và giọng đọc to tên học sinh (không tự đọc câu hỏi; bấm “Đọc câu hỏi” khi cần). Sau khi đọc tên có 5 giây chuẩn bị rồi mới tính giờ.
+- **Âm thanh & Đọc tên**: Âm thanh Web Audio chân thực, tiếng reo hò "Yeah!", và giọng đọc to tên học sinh (không tự đọc câu hỏi; bấm “Đọc câu hỏi” khi cần). Đồng hồ đếm ngược chỉ chạy khi bấm vào đồng hồ, có tiếng tích tắc. Trả lời đúng/sai có lời khen, động viên. Giọng đọc ưu tiên giọng nữ miền Bắc (Microsoft HoaiMy trên Edge, Google Tiếng Việt trên Chrome; cần có mạng).
 - **Không lặp lại câu hỏi**: Mỗi lớp dùng lần lượt hết bộ câu hỏi rồi mới quay lại từ đầu, nhớ cả khi tắt máy; có nút “Làm mới câu hỏi”.
 - **Bảng vàng ngôi sao**: Tự động tích lũy và cập nhật số sao thưởng (★) của từng học sinh sau mỗi lượt gọi.
 - **Phím tắt tiện lợi**: Kích hoạt bằng nút bấm lớn `GỌI TÊN ★` hoặc nhấn phím `Space` / `Enter`.

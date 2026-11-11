@@ -9,3 +9,7 @@ __pycache__/
 
 # Cấu hình riêng của công cụ trên máy
 .claude/
+
+# Khoá bí mật (API key...) — không bao giờ đưa lên GitHub
+.env
+.env.*
