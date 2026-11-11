@@ -562,6 +562,14 @@ function tone(f, d, type, vol, at){
 }
 var SFX = {
   tick: function(){ tone(1400, .04, 'square', .03); },
+  // chuông báo thức "reng reng": 2 hồi, mỗi hồi búa gõ nhanh qua lại giữa 2 chuông kim loại
+  ring: function(){
+    for (var b = 0; b < 2; b++) for (var i = 0; i < 14; i++) {
+      var at = b * .9 + i * .045, f = i % 2 ? 2350 : 2150;
+      tone(f, .12, 'triangle', .07, at);
+      tone(f * 2.76, .06, 'sine', .025, at); // bồi âm lệch tạo tiếng kim loại
+    }
+  },
   // tiếng đồng hồ: "tích" cao, "tắc" trầm luân phiên; loud = những giây cuối, to và gắt hơn
   clock: function(tic, loud){
     var k = loud ? 1.8 : 1;
@@ -6255,7 +6263,7 @@ function startTimer(){
     if (R.tLeft === lastSec) return;
     lastSec = R.tLeft; updTimer();
     if (R.tLeft > 0) { SFX.clock(R.tLeft % 2 === S.set.timer % 2, R.tLeft <= 5); if (R.tLeft <= 5) SFX.beep(); }
-    if (R.tLeft <= 0) { stopTimer(); if (!R.done) { R.verdict = 'time'; logResult('Hết giờ'); SFX.bad(); renderRes(); } }
+    if (R.tLeft <= 0) { stopTimer(); if (!R.done) { R.verdict = 'time'; logResult('Hết giờ'); SFX.ring(); renderRes(); } }
   }, 250);
 }
 function updTimer(){
