@@ -46,6 +46,12 @@ Tất cả 15 trò chơi đều được tích hợp trực tiếp trên thanh �
 
 ---
 
+## 🔒 Mật khẩu sử dụng
+
+Lần đầu mở ứng dụng (trang chính hoặc từng trò chơi) sẽ phải nhập mật khẩu. Tích “Ghi nhớ trên máy này” thì lần sau không hỏi lại; bỏ tích thì chỉ nhớ đến khi đóng trình duyệt. Mã chỉ lưu mã băm của mật khẩu trong [`libs/khoa.js`](libs/khoa.js); muốn đổi mật khẩu thì thay giá trị `HASH` trong tệp đó theo hướng dẫn ở đầu tệp.
+
+---
+
 ## 🚀 Cách chạy & Cài đặt
 
 - **Chạy máy chủ Localhost**: Nhấp đúp vào [`Chay_App.bat`](file:///c:/Users/oc/OneDrive/Desktop/GOI_TEN_NGOI_SAO/Chay_App.bat) hoặc truy cập [http://localhost:8000](http://localhost:8000).

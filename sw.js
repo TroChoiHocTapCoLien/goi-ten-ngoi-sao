@@ -1,7 +1,7 @@
 // Gọi Tên Ngôi Sao — cho trò chơi chạy được khi không có mạng.
 // Trang chính: lấy bản mới từ mạng trước, mất mạng thì dùng bản đã lưu.
 // Phông chữ, KaTeX, bộ chuyển MP3 (CDN): dùng bản đã lưu, cập nhật ngầm khi có mạng.
-var CACHE = 'goiten-ngoisao-v2';
+var CACHE = 'goiten-ngoisao-v3';
 var SHELL = [
   './',
   './index.html',
@@ -13,6 +13,7 @@ var SHELL = [
   './libs/katex.min.js',
   './libs/auto-render.min.js',
   './libs/lame.min.js',
+  './libs/khoa.js',
   './BẮT VỊT SÂN ĐÌNH.html',
   './CỖ MÁY GỌI TÊN.html',
   './LÁ BÀI ĐỊNH MỆNH.html',
