@@ -557,6 +557,12 @@ function tone(f, d, type, vol, at){
 }
 var SFX = {
   tick: function(){ tone(1400, .04, 'square', .03); },
+  // tiếng đồng hồ: "tích" cao, "tắc" trầm luân phiên; loud = những giây cuối, to và gắt hơn
+  clock: function(tic, loud){
+    var k = loud ? 1.8 : 1;
+    tone(tic ? 1900 : 1350, .025, 'square', .035 * k);
+    tone(tic ? 950 : 680, .06, 'sine', .07 * k);
+  },
   win: function(){ [523, 659, 784, 1047, 1319].forEach(function(f, i){ tone(f, .35, 'triangle', .09, i * .09); }); },
   ok: function(){ tone(880, .15, 'triangle', .1); tone(1320, .3, 'triangle', .1, .12); },
   bad: function(){ tone(220, .35, 'sawtooth', .05); tone(165, .4, 'sawtooth', .05, .15); },
@@ -6247,11 +6253,15 @@ function renderRes(){
 }
 function startTimer(){
   stopTimer(); R.tStart = Date.now(); R.tLeft = S.set.timer; updTimer();
+  var lastSec = R.tLeft; SFX.clock(true);
+  // kiểm tra 4 lần mỗi giây để tiếng tích tắc rơi đúng lúc số giây đổi, không bị lệch dần
   timerIv = setInterval(function(){
-    R.tLeft = Math.max(0, S.set.timer - Math.floor((Date.now() - R.tStart) / 1000)); updTimer();
-    if (R.tLeft <= 5 && R.tLeft > 0) SFX.beep();
+    R.tLeft = Math.max(0, S.set.timer - Math.floor((Date.now() - R.tStart) / 1000));
+    if (R.tLeft === lastSec) return;
+    lastSec = R.tLeft; updTimer();
+    if (R.tLeft > 0) { SFX.clock(R.tLeft % 2 === S.set.timer % 2, R.tLeft <= 5); if (R.tLeft <= 5) SFX.beep(); }
     if (R.tLeft <= 0) { stopTimer(); if (!R.done) { R.verdict = 'time'; logResult('Hết giờ'); SFX.bad(); renderRes(); } }
-  }, 1000);
+  }, 250);
 }
 function updTimer(){
   var n = $('#tNum'), a = $('#tArc'); if (!n) return;
